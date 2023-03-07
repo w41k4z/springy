@@ -8,7 +8,7 @@
 
     <servlet>
       <servlet-name>FrontServlet</servlet-name>
-      <servlet-class>FrontServlet</servlet-class>
+      <servlet-class>etu2011.framework.servlet.FrontServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
