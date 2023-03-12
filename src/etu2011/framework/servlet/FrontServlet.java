@@ -5,9 +5,9 @@ import java.io.PrintWriter;
 
 import java.lang.reflect.Method;
 
-import annotation.method.GetMapping;
-import annotation.method.PostMapping;
 import etu2011.framework.Mapping;
+import etu2011.framework.annotation.method.GetMapping;
+import etu2011.framework.annotation.method.PostMapping;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,14 +20,20 @@ public class FrontServlet extends HttpServlet {
     private HashMap<String, Mapping> mappingUrls;
 
     @Override
+    public void init() throws ServletException {
+        mappingUrls = new HashMap<String, Mapping>();
+        mappingUrls.put("/hello", new Mapping("etu2011.framework.servlet.HelloServlet", "hello"));
+        mappingUrls.put("/hello2", new Mapping("etu2011.framework.servlet.HelloServlet", "hello2"));
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        PrintWriter out = resp.getWriter();
-        out.println(req.getContextPath());
+        processingRequest(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        processingRequest(req, resp);
     }
 
     private void processingRequest(HttpServletRequest req, HttpServletResponse resp) {
