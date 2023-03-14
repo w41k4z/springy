@@ -1,4 +1,4 @@
-package etu2011.framework.java;
+package etu2011.framework.javaObject;
 
 import java.io.File;
 
@@ -18,7 +18,7 @@ public class JavaFile {
 
     // setter
     public void setJavaFile(File file) throws JavaFileException {
-        if (isJavaFile(file))
+        if (!isJavaFile(file))
             throw new JavaFileException();
         this.javaFile = file;
     }
@@ -30,13 +30,13 @@ public class JavaFile {
 
     // methods
     public boolean isJavaFile(File file) {
-        return file.getName().toLowerCase().endsWith(".java");
+        return file.getName().toLowerCase().endsWith(".java") || file.getName().toLowerCase().endsWith(".class");
     }
 
-    public Class<?> getClassObject() {
-        String path = this.getJavaFile().getPath().replace("/", ".");
+    public Class<?> getClassObject(String pathToRemove) {
+        String path = this.getJavaFile().getPath().replace(pathToRemove, "").replace("/", ".");
         try {
-            return Class.forName(path.substring(0, path.length() - 5));
+            return Class.forName(path.substring(0, path.length() - 6));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
