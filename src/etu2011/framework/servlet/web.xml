@@ -11,7 +11,7 @@
       <servlet-class>etu2011.framework.servlet.FrontServlet</servlet-class>
       <init-param>
         <param-name>rootPath</param-name>
-        <param-value>value1</param-value>
+        <param-value>/opt/rywihiuehr/</param-value>
       </init-param>
     </servlet>
   
