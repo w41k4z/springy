@@ -11,6 +11,7 @@ import etu2011.framework.exception.JavaFileException;
 import etu2011.framework.javaObject.JavaClass;
 import etu2011.framework.javaObject.JavaFile;
 import fileActivity.Executor;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,10 +36,11 @@ public class FrontServlet extends HttpServlet {
 
     // methods
     @Override
-    public void init() throws ServletException {
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         try {
             this.setMappingUrls(new HashMap<String, Mapping>());
-            String rootPath = "/opt/apache-tomcat-10/webapps/springy/WEB-INF/classes/";
+            String rootPath = config.getInitParameter("rootPath");
             File root = new File(rootPath);
             File[] fileTree = this.scanProject(root);
             this.findAllMappedMethod(rootPath, fileTree);
@@ -61,12 +63,7 @@ public class FrontServlet extends HttpServlet {
 
     private void processingRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
-        for (Map.Entry<String, Mapping> entry : this.getMappingUrls().entrySet()) {
-            out.println("For : \"" + entry.getKey() + "\"");
-            out.println("\tClass:" + entry.getValue().getClassName());
-            out.println("\tMethod:" + entry.getValue().getMethod());
-            out.println("\n\n\n");
-        }
+        out.println(req.getServletContext().getRealPath(getServletInfo()));
     }
 
     private File[] scanProject(File root) throws Exception {
