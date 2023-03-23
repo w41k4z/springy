@@ -40,7 +40,7 @@ public class FrontServlet extends HttpServlet {
         super.init(config);
         try {
             this.setMappingUrls(new HashMap<String, Mapping>());
-            String rootPath = config.getInitParameter("rootPath");
+            String rootPath = config.getServletContext().getRealPath(this.getServletInfo()) + "/WEB-INF/classes";
             File root = new File(rootPath);
             File[] fileTree = this.scanProject(root);
             this.findAllMappedMethod(rootPath, fileTree);
@@ -63,7 +63,7 @@ public class FrontServlet extends HttpServlet {
 
     private void processingRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
-        out.println(req.getServletContext().getRealPath(getServletInfo()));
+        out.println();
     }
 
     private File[] scanProject(File root) throws Exception {
