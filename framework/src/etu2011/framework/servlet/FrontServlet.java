@@ -3,6 +3,7 @@ package etu2011.framework.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import etu2011.framework.Mapping;
@@ -10,7 +11,9 @@ import etu2011.framework.annotation.Url;
 import etu2011.framework.exception.JavaFileException;
 import etu2011.framework.javaObject.JavaClass;
 import etu2011.framework.javaObject.JavaFile;
+import etu2011.framework.renderer.ModelView;
 import fileActivity.Executor;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -40,7 +43,7 @@ public class FrontServlet extends HttpServlet {
         super.init(config);
         try {
             this.setMappingUrls(new HashMap<String, Mapping>());
-            String rootPath = config.getServletContext().getRealPath(this.getServletInfo()) + "/WEB-INF/classes";
+            String rootPath = config.getServletContext().getRealPath(this.getServletInfo()) + "WEB-INF/classes/";
             File root = new File(rootPath);
             File[] fileTree = this.scanProject(root);
             this.findAllMappedMethod(rootPath, fileTree);
@@ -63,7 +66,52 @@ public class FrontServlet extends HttpServlet {
 
     private void processingRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
-        out.println();
+        String url = req.getRequestURL().toString().split("://")[1];
+        String context = url.substring(url.indexOf("/"));
+        Mapping mapping = this.getMappingUrls().get(context);
+        // out.println(context);
+        if (mapping != null) {
+            try {
+                Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
+                Method method = target.getClass().getDeclaredMethod(mapping.getMethod());
+                Object result = method.invoke(target);
+                if (result instanceof ModelView modelView) {
+                    String view = modelView.getView();
+                    // out.print(view);
+                    RequestDispatcher dispatcher = req.getRequestDispatcher(view);
+                    dispatcher.forward(req, resp);
+                }
+            } catch (NoSuchMethodException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (SecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ServletException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } /*
+           * else {
+           * resp.sendError(404);
+           * return;
+           * }
+           */
     }
 
     private File[] scanProject(File root) throws Exception {

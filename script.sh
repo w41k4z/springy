@@ -7,15 +7,17 @@ jar cvf ../../springy-1.0.0.jar *
 cd ../../
 
 # creating the directory structure for the project test to deploy
-mkdir ./temp ./temp/WEB-INF ./temp/WEB-INF/classes ./temp/WEB-INF/lib
+mkdir ./temp ./temp/views ./temp/models ./temp/WEB-INF ./temp/WEB-INF/classes ./temp/WEB-INF/lib
 
 # copying jar file to the project library and the web.xml file
 cp ./springy-1.0.0.jar ./temp/WEB-INF/lib && 
 cp ./lib/*.jar ./temp/WEB-INF/lib &&
-cp ./test-framework/web.xml ./temp/WEB-INF/
+cp ./test-framework/web.xml ./temp/WEB-INF/ &&
+cp ./test-framework/views/* ./temp/views/ &&
+cp ./test-framework/models/* ./temp/models/
 
 # compiling models and other user necessity to the project classes directory
-javac -classpath ./springy-1.0.0.jar -d ./temp/WEB-INF/classes --enable-preview --release 19 $(find ./test-framework -name '*.java')
+javac -classpath ./springy-1.0.0.jar -d ./temp/WEB-INF/classes --enable-preview --release 19 $(find ./test-framework/ -name '*.java')
 cd ./temp
 
 # exporting the temp directory to a war file and move it to tomcat webapps folder
