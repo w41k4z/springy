@@ -12,7 +12,9 @@ import etu2011.framework.exception.JavaFileException;
 import etu2011.framework.javaObject.JavaClass;
 import etu2011.framework.javaObject.JavaFile;
 import etu2011.framework.renderer.ModelView;
+
 import fileActivity.Executor;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -21,7 +23,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class FrontServlet extends HttpServlet {
 
@@ -67,9 +68,9 @@ public class FrontServlet extends HttpServlet {
     private void processingRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         String url = req.getRequestURL().toString().split("://")[1];
-        String context = url.substring(url.indexOf("/"));
+        String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
         Mapping mapping = this.getMappingUrls().get(context);
-        // out.println(context);
+        out.println(context);
         if (mapping != null) {
             try {
                 Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
@@ -77,8 +78,7 @@ public class FrontServlet extends HttpServlet {
                 Object result = method.invoke(target);
                 if (result instanceof ModelView modelView) {
                     String view = modelView.getView();
-                    // out.print(view);
-                    RequestDispatcher dispatcher = req.getRequestDispatcher(view);
+                    RequestDispatcher dispatcher = req.getRequestDispatcher(req.getContextPath() + view);
                     dispatcher.forward(req, resp);
                 }
             } catch (NoSuchMethodException e) {

@@ -13,6 +13,7 @@ mkdir ./temp ./temp/views ./temp/models ./temp/WEB-INF ./temp/WEB-INF/classes ./
 cp ./springy-1.0.0.jar ./temp/WEB-INF/lib && 
 cp ./lib/*.jar ./temp/WEB-INF/lib &&
 cp ./test-framework/web.xml ./temp/WEB-INF/ &&
+cp ./test-framework/*.jsp ./temp/ &&
 cp ./test-framework/views/* ./temp/views/ &&
 cp ./test-framework/models/* ./temp/models/
 

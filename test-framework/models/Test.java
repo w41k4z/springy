@@ -5,8 +5,8 @@ import etu2011.framework.renderer.ModelView;
 
 public class Test {
 
-    @Url("/test-springy/test")
+    @Url("/test")
     public ModelView helloWorld() {
-        return new ModelView("/views/test.jsp");
+        return new ModelView("/yu.jsp");
     }
 }
