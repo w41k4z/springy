@@ -3,6 +3,7 @@ package etu2011.framework.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -70,7 +71,7 @@ public class FrontServlet extends HttpServlet {
         String url = req.getRequestURL().toString().split("://")[1];
         String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
         Mapping mapping = this.getMappingUrls().get(context);
-        out.println(context);
+        out.print(context);
         if (mapping != null) {
             try {
                 Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
@@ -78,33 +79,25 @@ public class FrontServlet extends HttpServlet {
                 Object result = method.invoke(target);
                 if (result instanceof ModelView modelView) {
                     String view = modelView.getView();
-                    RequestDispatcher dispatcher = req.getRequestDispatcher(req.getContextPath() + view);
+                    RequestDispatcher dispatcher = req.getRequestDispatcher(view);
                     dispatcher.forward(req, resp);
                 }
             } catch (NoSuchMethodException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (SecurityException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (ClassNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (InvocationTargetException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             } catch (ServletException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                out.println(e);
             }
         } /*
            * else {

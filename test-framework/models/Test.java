@@ -7,6 +7,6 @@ public class Test {
 
     @Url("/test")
     public ModelView helloWorld() {
-        return new ModelView("/yu.jsp");
+        return new ModelView("views/test.jsp");
     }
 }
