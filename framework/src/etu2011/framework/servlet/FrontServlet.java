@@ -71,7 +71,6 @@ public class FrontServlet extends HttpServlet {
         String url = req.getRequestURL().toString().split("://")[1];
         String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
         Mapping mapping = this.getMappingUrls().get(context);
-        out.print(context);
         if (mapping != null) {
             try {
                 Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
