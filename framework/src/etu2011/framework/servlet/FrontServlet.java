@@ -99,12 +99,10 @@ public class FrontServlet extends HttpServlet {
             } catch (ServletException e) {
                 out.println(e);
             }
-        } /*
-           * else {
-           * resp.sendError(404);
-           * return;
-           * }
-           */
+        } else {
+            resp.sendError(404);
+            return;
+        }
     }
 
     private File[] scanProject(File root) throws Exception {
