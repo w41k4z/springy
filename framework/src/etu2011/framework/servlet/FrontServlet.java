@@ -3,6 +3,8 @@ package etu2011.framework.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import etu2011.framework.Mapping;
@@ -10,14 +12,18 @@ import etu2011.framework.annotation.Url;
 import etu2011.framework.exception.JavaFileException;
 import etu2011.framework.javaObject.JavaClass;
 import etu2011.framework.javaObject.JavaFile;
+import etu2011.framework.renderer.ModelView;
+
 import fileActivity.Executor;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class FrontServlet extends HttpServlet {
 
@@ -35,10 +41,11 @@ public class FrontServlet extends HttpServlet {
 
     // methods
     @Override
-    public void init() throws ServletException {
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         try {
             this.setMappingUrls(new HashMap<String, Mapping>());
-            String rootPath = "/opt/apache-tomcat-10/webapps/springy/WEB-INF/classes/";
+            String rootPath = config.getServletContext().getRealPath(this.getServletInfo()) + "WEB-INF/classes/";
             File root = new File(rootPath);
             File[] fileTree = this.scanProject(root);
             this.findAllMappedMethod(rootPath, fileTree);
@@ -61,11 +68,39 @@ public class FrontServlet extends HttpServlet {
 
     private void processingRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
-        for (Map.Entry<String, Mapping> entry : this.getMappingUrls().entrySet()) {
-            out.println("For : \"" + entry.getKey() + "\"");
-            out.println("\tClass:" + entry.getValue().getClassName());
-            out.println("\tMethod:" + entry.getValue().getMethod());
-            out.println("\n\n\n");
+        String url = req.getRequestURL().toString().split("://")[1];
+        String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
+        Mapping mapping = this.getMappingUrls().get(context);
+        if (mapping != null) {
+            try {
+                Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
+                Method method = target.getClass().getDeclaredMethod(mapping.getMethod());
+                Object result = method.invoke(target);
+                if (result instanceof ModelView modelView) {
+                    String view = modelView.getView();
+                    RequestDispatcher dispatcher = req.getRequestDispatcher(view);
+                    dispatcher.forward(req, resp);
+                }
+            } catch (NoSuchMethodException e) {
+                out.println(e);
+            } catch (SecurityException e) {
+                out.println(e);
+            } catch (ClassNotFoundException e) {
+                out.println(e);
+            } catch (IllegalAccessException e) {
+                out.println(e);
+            } catch (InvocationTargetException e) {
+                out.println(e);
+            } catch (InstantiationException e) {
+                out.println(e);
+            } catch (IllegalArgumentException e) {
+                out.println(e);
+            } catch (ServletException e) {
+                out.println(e);
+            }
+        } else {
+            resp.sendError(404);
+            return;
         }
     }
 
