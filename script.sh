@@ -10,11 +10,11 @@ cd ../../
 mkdir ./temp ./temp/views ./temp/models ./temp/WEB-INF ./temp/WEB-INF/classes ./temp/WEB-INF/lib
 
 # copying jar file to the project library and the web.xml file
-cp ./springy-1.0.0.jar ./temp/WEB-INF/lib && 
-cp ./lib/*.jar ./temp/WEB-INF/lib &&
-cp ./test-framework/web.xml ./temp/WEB-INF/ &&
-cp ./test-framework/*.jsp ./temp/ &&
-cp ./test-framework/views/* ./temp/views/ &&
+cp ./springy-1.0.0.jar ./temp/WEB-INF/lib 
+cp ./lib/*.jar ./temp/WEB-INF/lib
+cp ./test-framework/web.xml ./temp/WEB-INF/
+cp ./test-framework/*.jsp ./temp/
+cp ./test-framework/views/* ./temp/views/
 cp ./test-framework/models/* ./temp/models/
 
 # compiling models and other user necessity to the project classes directory

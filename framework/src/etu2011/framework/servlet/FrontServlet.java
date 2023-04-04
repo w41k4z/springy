@@ -24,19 +24,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class FrontServlet extends HttpServlet {
 
-    private HashMap<String, Mapping> mappingUrls;
+    private Map<String, Mapping> mappingUrls;
+    private String viewsDirectory;
 
-    // setter
+    // setters
     public void setMappingUrls(HashMap<String, Mapping> mappingUrls) {
         this.mappingUrls = mappingUrls;
     }
 
-    // getter
-    public HashMap<String, Mapping> getMappingUrls() {
+    private void setViewsDirectory(String viewsDirectory) {
+        this.viewsDirectory = viewsDirectory;
+    }
+
+    // getters
+    private Map<String, Mapping> getMappingUrls() {
         return this.mappingUrls;
+    }
+
+    private String getViewsDirectory() {
+        return this.viewsDirectory;
     }
 
     // methods
@@ -45,6 +55,7 @@ public class FrontServlet extends HttpServlet {
         super.init(config);
         try {
             this.setMappingUrls(new HashMap<String, Mapping>());
+            this.setViewsDirectory(config.getInitParameter("views-directory"));
             String rootPath = config.getServletContext().getRealPath(this.getServletInfo()) + "WEB-INF/classes/";
             File root = new File(rootPath);
             File[] fileTree = this.scanProject(root);
@@ -77,7 +88,11 @@ public class FrontServlet extends HttpServlet {
                 Method method = target.getClass().getDeclaredMethod(mapping.getMethod());
                 Object result = method.invoke(target);
                 if (result instanceof ModelView modelView) {
-                    String view = modelView.getView();
+                    String view = this.getViewsDirectory().concat(modelView.getView());
+                    Map<String, Object> data = modelView.getData();
+                    for (Map.Entry<String, Object> entry : data.entrySet()) {
+                        req.setAttribute(entry.getKey(), entry.getValue());
+                    }
                     RequestDispatcher dispatcher = req.getRequestDispatcher(view);
                     dispatcher.forward(req, resp);
                 }

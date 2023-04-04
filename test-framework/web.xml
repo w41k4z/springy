@@ -10,8 +10,8 @@
       <servlet-name>FrontServlet</servlet-name>
       <servlet-class>etu2011.framework.servlet.FrontServlet</servlet-class>
       <init-param>
-        <param-name>rootPath</param-name>
-        <param-value>/opt/apache-tomcat-10/webapps/test-springy/</param-value>
+        <param-name>views-directory</param-name>
+        <param-value>views/</param-value>
       </init-param>
     </servlet>
   
