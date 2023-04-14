@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import etu2011.framework.Mapping;
 import etu2011.framework.annotation.Url;
@@ -59,7 +60,7 @@ public class FrontServlet extends HttpServlet {
                 javaClass.setJavaClass(javaFile.getClassObject(rootPath));
 
                 for (Method method : javaClass.getMethodByAnnotation(Url.class)) {
-                    mapping = new Mapping(javaClass.getJavaClass().getName(), method.getName());
+                    mapping = new Mapping(javaClass.getJavaClass().getName(), method);
                     this.getMappingUrls().put(method.getAnnotation(Url.class).value(), mapping);
                 }
             } catch (JavaFileException e) {
@@ -93,8 +94,16 @@ public class FrontServlet extends HttpServlet {
         if (mapping != null) {
             try {
                 Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
-                Method method = target.getClass().getDeclaredMethod(mapping.getMethod());
-                Object result = method.invoke(target);
+                Method method = mapping.getMethod();
+                boolean hasRequestParameter = false;
+                for (Parameter parameter : method.getParameters()) {
+                    if (parameter.getType().equals(HttpServletRequest.class)) {
+                        hasRequestParameter = true;
+                        break;
+                    }
+                }
+                out.println(hasRequestParameter);
+                Object result = hasRequestParameter ? method.invoke(target, req) : method.invoke(target);
                 if (result instanceof ModelView modelView) {
                     String view = this.getViewsDirectory().concat(modelView.getView());
                     Map<String, Object> data = modelView.getData();

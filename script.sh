@@ -18,7 +18,7 @@ cp ./test-framework/views/* ./temp/views/
 cp ./test-framework/models/* ./temp/models/
 
 # compiling models and other user necessity to the project classes directory
-javac -classpath ./springy-1.0.0.jar -d ./temp/WEB-INF/classes --enable-preview --release 20 $(find ./test-framework/ -name '*.java')
+javac -classpath ./lib/servlet-api.jar:./springy-1.0.0.jar -d ./temp/WEB-INF/classes --enable-preview --release 20 $(find ./test-framework/ -name '*.java')
 cd ./temp
 
 # exporting the temp directory to a war file and move it to tomcat webapps folder

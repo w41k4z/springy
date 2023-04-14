@@ -1,12 +1,14 @@
 package etu2011.framework;
 
+import java.lang.reflect.Method;
+
 public class Mapping {
 
     private String className;
-    private String method;
+    private Method method;
 
     // constructor
-    public Mapping(String className, String method) {
+    public Mapping(String className, Method method) {
         this.className = className;
         this.method = method;
     }
@@ -16,7 +18,7 @@ public class Mapping {
         this.className = className;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(Method method) {
         this.method = method;
     }
 
@@ -25,7 +27,7 @@ public class Mapping {
         return this.className;
     }
 
-    public String getMethod() {
+    public Method getMethod() {
         return this.method;
     }
 }
