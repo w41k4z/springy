@@ -1,5 +1,5 @@
 # compiling source code
-javac -classpath ./lib/servlet-api.jar:./lib/r-w-x_file.jar -d ./bin/framework --enable-preview --release 19 $(find  ./framework/src/ -name '*.java')
+javac -classpath ./lib/servlet-api.jar:./lib/r-w-x_file.jar -d ./bin/framework --enable-preview --release 20 $(find  ./framework/src/ -name '*.java')
 cd ./bin/framework
 
 # exporting the framework to a jar file
@@ -18,7 +18,7 @@ cp ./test-framework/views/* ./temp/views/
 cp ./test-framework/models/* ./temp/models/
 
 # compiling models and other user necessity to the project classes directory
-javac -classpath ./springy-1.0.0.jar -d ./temp/WEB-INF/classes --enable-preview --release 19 $(find ./test-framework/ -name '*.java')
+javac -classpath ./springy-1.0.0.jar -d ./temp/WEB-INF/classes --enable-preview --release 20 $(find ./test-framework/ -name '*.java')
 cd ./temp
 
 # exporting the temp directory to a war file and move it to tomcat webapps folder
