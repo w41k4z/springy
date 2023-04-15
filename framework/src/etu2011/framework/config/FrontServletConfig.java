@@ -18,10 +18,11 @@ public class FrontServletConfig {
     public static final String MODEL_DIRECTORY = "models/";
 
     /* METHOD SECTION */
-    public static Map<String, Mapping> getAllMappedMethod(String rootPath, File[] fileTree) {
+    public static Map<String, Mapping> getAllMappedMethod(String rootPath, File[] fileTree) throws JavaFileException {
         // Declaring variables up here
         // and injecting their dependencies in the loop using setters
         // for better performance
+
         JavaFile javaFile = new JavaFile();
         JavaClass javaClass = new JavaClass();
         Mapping mapping = null;
@@ -32,13 +33,15 @@ public class FrontServletConfig {
                 javaFile.setJavaFile(file);
                 javaClass.setJavaClass(javaFile.getClassObject(rootPath));
 
-                if (javaClass.getJavaClass().isAnnotationPresent(ModelController.class) == false) {
-                    for (Method method : javaClass.getMethodByAnnotation(UrlMapping.class)) {
-                        mapping = new Mapping(javaClass.getJavaClass().getName(), method);
-                        mappedMethod.put(method.getAnnotation(UrlMapping.class).url(), mapping);
-                    }
+                if (!javaClass.getJavaClass().isAnnotationPresent(ModelController.class)) {
+                    throw new JavaFileException("The class " + javaClass.getJavaClass().getName()
+                            + " is not annotated with @ModelController");
                 }
 
+                for (Method method : javaClass.getMethodByAnnotation(UrlMapping.class)) {
+                    mapping = new Mapping(javaClass.getJavaClass().getName(), method);
+                    mappedMethod.put(method.getAnnotation(UrlMapping.class).url(), mapping);
+                }
             } catch (JavaFileException e) {
                 continue;
             }

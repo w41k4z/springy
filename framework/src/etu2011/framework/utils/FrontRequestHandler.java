@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import etu2011.framework.Mapping;
+import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.renderer.ModelView;
 import jakarta.servlet.RequestDispatcher;
@@ -17,15 +18,15 @@ import jakarta.servlet.http.HttpServletResponse;
 public class FrontRequestHandler {
 
     private Mapping mappingTarget;
-    private ArrayList<Object> preparedMethodParameters;
+    private ArrayList<Object> preparedParameterValues;
 
     /* SETTERS SECTION */
     private void setMappingTarget(Mapping mappingTarget) {
         this.mappingTarget = mappingTarget;
     }
 
-    private void setPreparedMethodParameters(ArrayList<Object> params) {
-        this.preparedMethodParameters = params;
+    private void setPreparedParameterValues(ArrayList<Object> paramsValue) {
+        this.preparedParameterValues = paramsValue;
     }
 
     /* GETTERS SECTION */
@@ -33,8 +34,8 @@ public class FrontRequestHandler {
         return this.mappingTarget;
     }
 
-    public ArrayList<Object> getPreparedMethod() {
-        return this.preparedMethodParameters;
+    public ArrayList<Object> getPreparedParameterValues() {
+        return this.preparedParameterValues;
     }
 
     /* METHODS SECTION */
@@ -44,61 +45,88 @@ public class FrontRequestHandler {
         this.setMappingTarget(mappingUrl.get(context));
     }
 
-    private void prepareMethodParameters(HttpServletRequest req) {
-        Method method = this.getMappingTarget().getMethod();
-        boolean hasRequestParameter = false;
-        for (Parameter parameter : method.getParameters()) {
-            if (parameter.getType().equals(HttpServletRequest.class)) {
-                hasRequestParameter = true;
-                break;
-            }
+    private void checkMethodValidity(HttpServletRequest req) throws NoSuchMethodException {
+        String mappingMethodType = this.getMappingTarget().getMethod().getAnnotation(UrlMapping.class).method()
+                .toString();
+        if (!req.getMethod().toUpperCase(null).equals(mappingMethodType.toUpperCase(null))) {
+            throw new NoSuchMethodException("This url is not allowed for " + req.getMethod() + " method");
         }
     }
 
-    private Object getParameterValue(HttpServletRequest req, HttpParameter param) {
+    private void prepareMethodParameters(HttpServletRequest req) throws IllegalArgumentException {
+        ArrayList<Object> values = new ArrayList<Object>();
+        Method method = this.getMappingTarget().getMethod();
+        HttpParameter param = new HttpParameter();
+        for (Parameter parameter : method.getParameters()) {
+            param.setParameter(parameter);
+            values.add(this.getParameterValue(req, param));
+        }
+        this.setPreparedParameterValues(values);
+    }
+
+    private Object getParameterValue(HttpServletRequest req, HttpParameter param) throws NullPointerException {
+        Object value;
         switch (param.getParameterType()) {
             case REQUEST_PARAMETER:
-                return this.getRequestParameterValue(req, param);
+                value = this.getRequestParameterValue(req, param);
             case PATH_VARIABLE:
-                return null;
+                value = this.getPathVariableValue(req, param);
             default:
-                return req;
+                value = req;
         }
+        if (value == null) {
+            throw new NullPointerException("Parameter value is null");
+        }
+        return this.castParameterValue(value, param);
     }
 
     private Object getRequestParameterValue(HttpServletRequest req, HttpParameter param) {
         return req.getParameter(param.getParameterName());
     }
 
+    private Object getPathVariableValue(HttpServletRequest req, HttpParameter param) {
+        return null;
+    }
+
     private Object castParameterValue(Object value, HttpParameter param) {
         switch (param.getParameter().getType().getSimpleName()) {
+            case "HttpServletRequest":
+                return value;
+            case "Integer":
+                return Integer.parseInt(value.toString());
             case "int":
                 return Integer.parseInt(value.toString());
+            case "Double":
+                return Double.parseDouble(value.toString());
             case "double":
-                return null;
+                return Double.parseDouble(value.toString());
+            case "Float":
+                return Float.parseFloat(value.toString());
+            case "float":
+                return Float.parseFloat(value.toString());
+            case "Long":
+                return Long.parseLong(value.toString());
+            case "long":
+                return Long.parseLong(value.toString());
+            case "Boolean":
+                return Boolean.parseBoolean(value.toString());
+            case "boolean":
+                return Boolean.parseBoolean(value.toString());
             default:
-                return value;
+                return value.toString();
         }
     }
 
-    private void process(HttpServletRequest req, HttpServletResponse resp, Map<String, Mapping> mappingUrl)
+    public void process(HttpServletRequest req, HttpServletResponse resp, Map<String, Mapping> mappingUrl)
             throws IOException {
         PrintWriter out = resp.getWriter();
-
         this.prepareRequest(req, resp, mappingUrl);
-
         if (this.getMappingTarget() != null) {
             try {
+                this.checkMethodValidity(req);
+                this.prepareMethodParameters(req);
                 Object target = Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance();
-                Method method = this.getMappingTarget().getMethod();
-                boolean hasRequestParameter = false;
-                for (Parameter parameter : method.getParameters()) {
-                    if (parameter.getType().equals(HttpServletRequest.class)) {
-                        hasRequestParameter = true;
-                        break;
-                    }
-                }
-                Object result = hasRequestParameter ? method.invoke(target, req) : method.invoke(target);
+                Object result = this.getMappingTarget().getMethod().invoke(target, this.getPreparedParameterValues());
                 if (result instanceof ModelView modelView) {
                     String view = FrontServletConfig.VIEW_DIRECTORY.concat(modelView.getView());
                     Map<String, Object> data = modelView.getData();

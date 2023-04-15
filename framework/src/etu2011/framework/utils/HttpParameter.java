@@ -13,6 +13,9 @@ public class HttpParameter {
     private String parameterName;
 
     /* CONSTRUCTOR SECTION */
+    public HttpParameter() {
+    }
+
     public HttpParameter(Parameter parameter) throws IllegalArgumentException {
         this.setParameter(parameter);
     }
