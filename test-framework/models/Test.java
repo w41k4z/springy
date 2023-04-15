@@ -1,13 +1,13 @@
 package models;
 
-import etu2011.framework.annotation.Url;
+import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.renderer.ModelView;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 public class Test {
 
-    @Url("/test")
+    @UrlMapping("/test")
     public ModelView helloWorld() {
         ModelView modelView = new ModelView("test.jsp");
         modelView.add("testVariable", "Coucou enao, milay ilay Java");
@@ -15,7 +15,7 @@ public class Test {
         return modelView;
     }
 
-    @Url("/test2")
+    @UrlMapping("/test2")
     public ModelView huhu(HttpServletRequest req) {
         ModelView modelView = new ModelView("test.jsp");
         modelView.add("testVariable", req.getParameter("test"));

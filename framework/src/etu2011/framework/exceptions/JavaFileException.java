@@ -1,4 +1,4 @@
-package etu2011.framework.exception;
+package etu2011.framework.exceptions;
 
 public class JavaFileException extends Exception {
     public JavaFileException() {

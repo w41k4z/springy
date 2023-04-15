@@ -13,7 +13,6 @@ mkdir ./temp ./temp/views ./temp/models ./temp/WEB-INF ./temp/WEB-INF/classes ./
 cp ./springy-1.0.0.jar ./temp/WEB-INF/lib 
 cp ./lib/*.jar ./temp/WEB-INF/lib
 cp ./test-framework/web.xml ./temp/WEB-INF/
-cp ./test-framework/*.jsp ./temp/
 cp ./test-framework/views/* ./temp/views/
 cp ./test-framework/models/* ./temp/models/
 
@@ -22,7 +21,7 @@ javac -classpath ./lib/servlet-api.jar:./springy-1.0.0.jar -d ./temp/WEB-INF/cla
 cd ./temp
 
 # exporting the temp directory to a war file and move it to tomcat webapps folder
-jar cvf /opt/apache-tomcat-10/webapps/test-springy.war *
+jar cvf $CATALINA_HOME/webapps/test-springy.war *
 cd ../
 
 # removing temp directory

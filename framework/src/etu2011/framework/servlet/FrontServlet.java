@@ -8,12 +8,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import etu2011.framework.Mapping;
-import etu2011.framework.annotation.Url;
-import etu2011.framework.exception.JavaFileException;
-import etu2011.framework.javaObject.JavaClass;
-import etu2011.framework.javaObject.JavaFile;
+import etu2011.framework.annotations.UrlMapping;
+import etu2011.framework.config.FrontServletConfig;
+import etu2011.framework.exceptions.JavaFileException;
 import etu2011.framework.renderer.ModelView;
-
+import etu2011.framework.utils.javaObject.JavaClass;
+import etu2011.framework.utils.javaObject.JavaFile;
 import fileActivity.Executor;
 
 import jakarta.servlet.RequestDispatcher;
@@ -29,15 +29,10 @@ import java.util.Map;
 public class FrontServlet extends HttpServlet {
 
     private Map<String, Mapping> mappingUrls;
-    private String viewsDirectory;
 
     /* SETTERS SECTION */
-    public void setMappingUrls(HashMap<String, Mapping> mappingUrls) {
+    private void setMappingUrls(Map<String, Mapping> mappingUrls) {
         this.mappingUrls = mappingUrls;
-    }
-
-    private void setViewsDirectory(String viewsDirectory) {
-        this.viewsDirectory = viewsDirectory;
     }
 
     /* GETTERS SECTION */
@@ -45,80 +40,20 @@ public class FrontServlet extends HttpServlet {
         return this.mappingUrls;
     }
 
-    private String getViewsDirectory() {
-        return this.viewsDirectory;
-    }
-
     /* SERVLET INIT SECTION */
-    private void findAllMappedMethod(String rootPath, File[] fileTree) {
-        JavaFile javaFile = new JavaFile();
-        JavaClass javaClass = new JavaClass();
-        Mapping mapping = null;
-        for (File file : fileTree) {
-            try {
-                javaFile.setJavaFile(file);
-                javaClass.setJavaClass(javaFile.getClassObject(rootPath));
-
-                for (Method method : javaClass.getMethodByAnnotation(Url.class)) {
-                    mapping = new Mapping(javaClass.getJavaClass().getName(), method);
-                    this.getMappingUrls().put(method.getAnnotation(Url.class).value(), mapping);
-                }
-            } catch (JavaFileException e) {
-                continue;
-            }
-        }
-    }
-
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
             this.setMappingUrls(new HashMap<String, Mapping>());
-            this.setViewsDirectory(config.getInitParameter("views-directory"));
-            String rootPath = config.getServletContext().getRealPath(this.getServletInfo()) + "WEB-INF/classes/";
-            File[] files = Executor.getSubFiles(new File(rootPath.concat("models/")));
-            this.findAllMappedMethod(rootPath, files);
+            String rootPath = config.getServletContext().getRealPath(this.getServletInfo()).concat("WEB-INF/classes/");
+            File[] files = Executor
+                    .getSubFiles(new File(rootPath.concat(FrontServletConfig.MODEL_DIRECTORY)));
+            this.setMappingUrls(FrontServletConfig.getAllMappedMethod(rootPath, files));
         } catch (ServletException e) {
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    /* REQUESTS HANDLER */
-    private void processingRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        PrintWriter out = resp.getWriter();
-        String url = req.getRequestURL().toString().split("://")[1];
-        String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
-        Mapping mapping = this.getMappingUrls().get(context);
-        if (mapping != null) {
-            try {
-                Object target = Class.forName(mapping.getClassName()).getConstructor().newInstance();
-                Method method = mapping.getMethod();
-                boolean hasRequestParameter = false;
-                for (Parameter parameter : method.getParameters()) {
-                    if (parameter.getType().equals(HttpServletRequest.class)) {
-                        hasRequestParameter = true;
-                        break;
-                    }
-                }
-                out.println(hasRequestParameter);
-                Object result = hasRequestParameter ? method.invoke(target, req) : method.invoke(target);
-                if (result instanceof ModelView modelView) {
-                    String view = this.getViewsDirectory().concat(modelView.getView());
-                    Map<String, Object> data = modelView.getData();
-                    for (Map.Entry<String, Object> entry : data.entrySet()) {
-                        req.setAttribute(entry.getKey(), entry.getValue());
-                    }
-                    RequestDispatcher dispatcher = req.getRequestDispatcher(view);
-                    dispatcher.forward(req, resp);
-                }
-            } catch (Exception e) {
-                out.println(e);
-            }
-        } else {
-            resp.sendError(404);
-            return;
         }
     }
 

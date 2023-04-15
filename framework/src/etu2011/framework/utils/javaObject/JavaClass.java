@@ -1,4 +1,4 @@
-package etu2011.framework.javaObject;
+package etu2011.framework.utils.javaObject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
