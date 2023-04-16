@@ -6,6 +6,8 @@ import java.io.IOException;
 import etu2011.framework.Mapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.utils.FrontRequestHandler;
+import etu2011.framework.utils.map.UrlPatternKey;
+import etu2011.framework.utils.map.UrlRegexHashMap;
 import fileActivity.Executor;
 
 import jakarta.servlet.ServletConfig;
@@ -14,20 +16,17 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class FrontServlet extends HttpServlet {
 
     private FrontRequestHandler requestHandler;
-    private Map<String, Mapping> mappingUrls;
+    private UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls;
 
     /* SETTERS SECTION */
     private void setRequestHandler(FrontRequestHandler requestHandler) {
         this.requestHandler = requestHandler;
     }
 
-    private void setMappingUrls(Map<String, Mapping> mappingUrls) {
+    private void setMappingUrls(UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls) {
         this.mappingUrls = mappingUrls;
     }
 
@@ -36,7 +35,7 @@ public class FrontServlet extends HttpServlet {
         return this.requestHandler;
     }
 
-    private Map<String, Mapping> getMappingUrls() {
+    private UrlRegexHashMap<UrlPatternKey, Mapping> getMappingUrls() {
         return this.mappingUrls;
     }
 
@@ -46,31 +45,36 @@ public class FrontServlet extends HttpServlet {
         super.init(config);
         try {
             this.setRequestHandler(new FrontRequestHandler());
-            this.setMappingUrls(new HashMap<String, Mapping>());
             String rootPath = config.getServletContext().getRealPath(this.getServletInfo())
                     .concat("WEB-INF/classes/");
             File[] files = Executor
                     .getSubFiles(new File(rootPath.concat(FrontServletConfig.MODEL_DIRECTORY)));
             this.setMappingUrls(FrontServletConfig.getAllMappedMethod(rootPath, files));
-        } catch (ServletException e) {
-            throw e;
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
     /* METHODS SECTION */
-    private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         this.getRequestHandler().process(req, resp, this.getMappingUrls());
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.processRequest(req, resp);
+        try {
+            this.processRequest(req, resp);
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.processRequest(req, resp);
+        try {
+            this.processRequest(req, resp);
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 }

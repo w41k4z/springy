@@ -12,5 +12,5 @@ import etu2011.framework.enumerations.HttpParameters;
 public @interface HttpParam {
     String name() default "";
 
-    HttpParameters type() default HttpParameters.REQUEST_PARAMETER;
+    HttpParameters type();
 }

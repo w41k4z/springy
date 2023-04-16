@@ -9,39 +9,30 @@ import jakarta.servlet.http.HttpServletRequest;
 public class HttpParameter {
 
     private Parameter parameter;
-    private HttpParameters parameterType;
+    private HttpParameters parameterType = null;
     private String parameterName;
 
     /* CONSTRUCTOR SECTION */
     public HttpParameter() {
     }
 
-    public HttpParameter(Parameter parameter) throws IllegalArgumentException {
+    public HttpParameter(Parameter parameter) throws Exception {
         this.setParameter(parameter);
     }
 
     /* SETTER SECTION */
-    public void setParameter(Parameter parameter) throws IllegalArgumentException {
+    public void setParameter(Parameter parameter) throws Exception {
         if (!isHttpParameter(parameter)) {
-            throw new IllegalArgumentException(
+            throw new Exception(
                     "This is not a valid http parameter\n.VALID: Annotated with @HttpParam or of type HttpServletRequest");
         }
         this.parameter = parameter;
         if (parameter.isAnnotationPresent(HttpParam.class)) {
-            switch (parameter.getAnnotation(HttpParam.class).type()) {
-                case REQUEST_PARAMETER:
-                    this.parameterType = HttpParameters.REQUEST_PARAMETER;
-                    break;
-                case PATH_VARIABLE:
-                    this.parameterType = HttpParameters.PATH_VARIABLE;
-                    break;
-                default:
-                    break;
-            }
+            this.parameterType = parameter.getAnnotation(HttpParam.class).type();
         }
         this.parameterName = parameter.getName();
         if (this.getParameter().isAnnotationPresent(HttpParam.class)) {
-            this.parameterName = this.getParameter().getAnnotation(HttpParam.class).name().length() == 0
+            this.parameterName = this.getParameter().getAnnotation(HttpParam.class).name().trim().length() == 0
                     ? this.parameterName
                     : this.getParameter().getAnnotation(HttpParam.class).name();
         }

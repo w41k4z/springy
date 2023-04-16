@@ -1,6 +1,6 @@
 REM compiling source code
 dir /b /s .\framework\src\*.java > sources.txt
-javac -classpath .\lib\servlet-api.jar;.\lib\r-w-x_file.jar -d .\bin\framework --enable-preview --release 20 @sources.txt
+javac -parameters -classpath .\lib\servlet-api.jar;.\lib\r-w-x_file.jar -d .\bin\framework --enable-preview --release 20 @sources.txt
 del sources.txt
 cd ".\bin\framework"
 
@@ -20,7 +20,7 @@ xcopy ".\test-framework\models" ".\temp\models" /s /e
 
 REM compiling models and other user necessity to the project classes directory
 dir /b /s .\test-framework\*.java > sources.txt
-javac -classpath ".\lib\servlet-api.jar;.\springy-1.0.0.jar" -d ".\temp\WEB-INF\classes" --enable-preview --release 20 @sources.txt
+javac -parameters -classpath ".\lib\servlet-api.jar;.\springy-1.0.0.jar" -d ".\temp\WEB-INF\classes" --enable-preview --release 20 @sources.txt
 del sources.txt
 cd ".\temp"
 
