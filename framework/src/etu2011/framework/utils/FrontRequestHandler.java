@@ -7,7 +7,7 @@ import java.util.Map;
 
 import etu2011.framework.Mapping;
 import etu2011.framework.annotations.HttpParam;
-import etu2011.framework.annotations.ModelController;
+import etu2011.framework.annotations.Controller;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.renderer.ModelView;
@@ -57,6 +57,8 @@ public class FrontRequestHandler {
         if (this.getMappingTarget() != null) {
             this.checkMethodValidity(req);
             Object target = Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance();
+
+            target.getClass().getMethod("initModel", HttpServletRequest.class).invoke(target, req);
 
             this.prepareMethodParameters(req, target);
             Object result = this.getMappingTarget().getMethod().invoke(target,
@@ -116,7 +118,7 @@ public class FrontRequestHandler {
                     break;
             }
         } else {
-            value = req;
+            throw new Exception("ModelController request handler method parameters must be annotated with @HttpParam");
         }
         if (value == null) {
             throw new Exception("Parameter " + param.getParameterName() + " value is null");
@@ -130,7 +132,7 @@ public class FrontRequestHandler {
 
     private Object getPathVariableValue(HttpParameter param, Object target) throws Exception {
         String url = target.getClass()
-                .getAnnotation(ModelController.class).route()
+                .getAnnotation(Controller.class).route()
                 .concat(this.getMappingTarget().getMethod().getAnnotation(UrlMapping.class).url());
         String[] urlParts = url.split("/");
         String[] contexParts = this.getContext().split("/");
@@ -144,8 +146,6 @@ public class FrontRequestHandler {
 
     private Object castParameterValue(Object value, HttpParameter param) {
         switch (param.getParameter().getType().getSimpleName()) {
-            case "HttpServletRequest":
-                return value;
             case "Integer":
                 return Integer.parseInt(value.toString());
             case "int":
