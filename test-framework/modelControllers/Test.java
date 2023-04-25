@@ -1,22 +1,20 @@
 package modelControllers;
 
+import java.sql.Date;
+
+import etu2011.framework.annotations.DatePattern;
 import etu2011.framework.annotations.HttpParam;
-import etu2011.framework.annotations.Controller;
+import etu2011.framework.annotations.ModelController;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.enumerations.HttpMethods;
 import etu2011.framework.enumerations.HttpParameters;
 import etu2011.framework.renderer.ModelView;
-import etu2011.framework.servlet.ModelController;
 
-import orm.annotation.Table;
-import orm.annotation.Column;
+@ModelController(route = "/test")
+public class Test {
 
-@Controller(route = "/test")
-@Table(columnCount = 1)
-public class Test extends ModelController<Test> {
-
-    @Column
-    private String value;
+    @DatePattern("dd/MM/yy") // aside the default yy-mm-dd format, this format will be accepted
+    private Date date;
 
     /* CONSTRUCTOR SECTION */
     public Test() throws Exception {
@@ -24,13 +22,13 @@ public class Test extends ModelController<Test> {
     }
 
     /* SETTERS SECTION */
-    public void setValue(String test) {
-        this.value = test;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     /* GETTERS SECTION */
-    public String getValue() {
-        return this.value;
+    public Date getDate() {
+        return this.date;
     }
 
     /* METHODS SECTION */
@@ -45,10 +43,11 @@ public class Test extends ModelController<Test> {
     }
 
     @UrlMapping(url = "/")
-    public ModelView huhu(@HttpParam(type = HttpParameters.REQUEST_PARAMETER) int test) {
+    public ModelView test(@HttpParam(type = HttpParameters.REQUEST_PARAMETER) int test) {
         ModelView modelView = new ModelView("test.jsp");
         modelView.add("testVariable", test);
-        modelView.add("testVariable2", new String[] { this.getValue() + " : This is the value of field value" });
+        modelView.add("testVariable2",
+                new String[] { this.getDate().toString() + " : This is the value of field date" });
         return modelView;
     }
 }

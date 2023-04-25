@@ -2,14 +2,6 @@
 javac -parameters -classpath ./lib/servlet-api.jar:./lib/r-w-x_file.jar:./lib/orm.jar -d ./bin/framework --enable-preview --release 20 $(find  ./framework/src/ -name '*.java')
 
 # adding framework librairies as dependencies
-    # orm
-    mkdir exportedOrm
-    cd ./exportedOrm
-    jar xvf ../lib/orm.jar
-    cp -r ./orm ../bin/framework/
-    cd ../
-    rm -r ./exportedOrm
-
     # r-w-x_file
     mkdir exportedRwx
     cd ./exportedRwx

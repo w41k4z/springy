@@ -1,18 +1,23 @@
 package etu2011.framework.utils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Map;
 
 import etu2011.framework.Mapping;
 import etu2011.framework.annotations.HttpParam;
-import etu2011.framework.annotations.Controller;
+import etu2011.framework.annotations.ModelController;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.renderer.ModelView;
+import etu2011.framework.utils.javaObject.JavaClass;
 import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,7 +63,7 @@ public class FrontRequestHandler {
             this.checkMethodValidity(req);
             Object target = Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance();
 
-            target.getClass().getMethod("initModel", HttpServletRequest.class).invoke(target, req);
+            this.initModel(req, target);
 
             this.prepareMethodParameters(req, target);
             Object result = this.getMappingTarget().getMethod().invoke(target,
@@ -92,6 +97,21 @@ public class FrontRequestHandler {
                 .toString();
         if (!req.getMethod().toUpperCase().equals(mappingMethodType.toUpperCase())) {
             throw new Exception("This url is not allowed for " + req.getMethod() + " method");
+        }
+    }
+
+    private void initModel(HttpServletRequest req, Object target) throws Exception {
+        Enumeration<String> allParametersName = req.getParameterNames();
+        String parameterName;
+        Field field;
+        while (allParametersName.hasMoreElements()) {
+            parameterName = allParametersName.nextElement();
+            try {
+                field = target.getClass().getDeclaredField(parameterName);
+            } catch (NoSuchFieldException e) {
+                continue;
+            }
+            JavaClass.setObjectFieldValue(target, req.getParameter(parameterName), field);
         }
     }
 
@@ -132,7 +152,7 @@ public class FrontRequestHandler {
 
     private Object getPathVariableValue(HttpParameter param, Object target) throws Exception {
         String url = target.getClass()
-                .getAnnotation(Controller.class).route()
+                .getAnnotation(ModelController.class).route()
                 .concat(this.getMappingTarget().getMethod().getAnnotation(UrlMapping.class).url());
         String[] urlParts = url.split("/");
         String[] contexParts = this.getContext().split("/");
@@ -144,8 +164,11 @@ public class FrontRequestHandler {
         return null;
     }
 
-    private Object castParameterValue(Object value, HttpParameter param) {
+    private Object castParameterValue(Object value, HttpParameter param) throws ParseException {
         switch (param.getParameter().getType().getSimpleName()) {
+            case "Date":
+                String dateFormat = DateHelpers.getDatePattern(param.getParameter());
+                return DateHelpers.convertToSqlDate(value.toString(), dateFormat);
             case "Integer":
                 return Integer.parseInt(value.toString());
             case "int":
