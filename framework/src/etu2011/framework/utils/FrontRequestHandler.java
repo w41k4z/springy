@@ -69,9 +69,9 @@ public class FrontRequestHandler {
             Object result = this.getMappingTarget().getMethod().invoke(target,
                     this.getPreparedParameterValues().toArray(new Object[this
                             .getPreparedParameterValues().size()]));
-            if (result instanceof ModelView modelView) {
-                String view = FrontServletConfig.VIEW_DIRECTORY.concat(modelView.getView());
-                Map<String, Object> data = modelView.getData();
+            if (result instanceof ModelView) {
+                String view = FrontServletConfig.VIEW_DIRECTORY.concat(((ModelView) result).getView());
+                Map<String, Object> data = ((ModelView) result).getData();
                 for (Map.Entry<String, Object> entry : data.entrySet()) {
                     req.setAttribute(entry.getKey(), entry.getValue());
                 }

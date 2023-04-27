@@ -50,4 +50,9 @@ public class Test {
                 new String[] { this.getDate().toString() + " : This is the value of field date" });
         return modelView;
     }
+
+    @UrlMapping(url = "/rs")
+    public ModelView testRs() {
+        return new ModelView("test.html");
+    }
 }

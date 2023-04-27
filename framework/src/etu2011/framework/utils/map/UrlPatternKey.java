@@ -35,8 +35,8 @@ public class UrlPatternKey {
     /* METHODS SECTION */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UrlPatternKey urlPattern) {
-            return this.getPattern().equals(urlPattern.getPattern());
+        if (obj instanceof UrlPatternKey) {
+            return this.getPattern().equals(((UrlPatternKey) obj).getPattern());
         }
         return false;
     }
