@@ -10,8 +10,12 @@ Welcome to this project. Here is a guideline to help you setup the framework wor
 
 ## Installation
 
-    1- Download the springy-cli from : [springy-cli](https://github.com/w41k4z/springy-cli.git)
+    1- Download the springy-cli
     2- Execute the `install.sh` script
+
+## Springy-cli
+
+    - [springy-cli](https://github.com/w41k4z/springy-cli.git)
 
 ## Pre-requisites
 
