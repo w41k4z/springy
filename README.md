@@ -8,8 +8,6 @@ Welcome to this project. Here is a guideline to help you setup the framework wor
 
 > This guide is for any text editor. If you use an IDE, just import the jar file to your project and then create the 'views' and 'modelControllers' folder inside your source project
 
-#### First create a new java project in VS Code
-
 ## Installation
 
     1- Download the springy-cli from : [springy-cli](https://github.com/w41k4z/springy-cli.git)
