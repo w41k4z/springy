@@ -15,7 +15,7 @@ Welcome to this project. Here is a guideline to help you setup the framework wor
 
 ## Springy-cli
 
-    - link : [springy-cli](https://github.com/w41k4z/springy-cli.git)
+-link : [springy-cli](https://github.com/w41k4z/springy-cli.git)
 
 ## Pre-requisites
 
