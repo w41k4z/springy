@@ -1,6 +1,6 @@
 {
-    "java.project.sourcePaths": ["framework/src", "test-framework"],
-    "java.project.outputPath": "bin/all",
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar"
     ]

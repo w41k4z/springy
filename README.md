@@ -1,17 +1,36 @@
+# Introduction
+
+This is a java framework inspired by the famous Spring MVC, for building web applications
+
 ## Getting Started
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Welcome to this project. Here is a guideline to help you setup the framework workspace.
+
+> I am actually using VS Code so this guide is only for VS Code users. If you use an IDE, just import the jar file to your project and then create the 'views' and 'modelControllers' folder
+
+First create a new java project in VS Code
+
+## Installation
+
+    1- Download the springy-cli from : [springy-cli](https://github.com/w41k4z/springy-cli.git)
+    2- Execute the `install.sh` script
+
+## Pre-requisites
+
+- Java 20
+- Tomcat 9 or higher
+- CATALINA_HOME environment variable
+- Springy-cli
 
 ## Folder Structure
 
-The workspace contains two folders by default, where:
+Your project would have thow main folders: 'src' and 'lib'
+The 'src' will contain two main folders, where:
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+- `views`: the folder to store all your jsp files
+- `modelControllers`: the folder for your model-controller
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+> You can also add your custom folder inside the src directory
 
 ## Dependency Management
 
