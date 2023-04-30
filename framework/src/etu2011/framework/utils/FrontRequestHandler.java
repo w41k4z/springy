@@ -15,8 +15,6 @@ import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.renderer.ModelView;
 import etu2011.framework.utils.javaObject.JavaClass;
-import etu2011.framework.utils.map.UrlPatternKey;
-import etu2011.framework.utils.map.UrlRegexHashMap;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,7 +54,7 @@ public class FrontRequestHandler {
 
     /* METHODS SECTION */
     public void process(HttpServletRequest req, HttpServletResponse resp,
-            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl)
+            Map<String, Mapping> mappingUrl)
             throws Exception {
         this.prepareRequest(req, resp, mappingUrl);
         if (this.getMappingTarget() != null) {
@@ -85,11 +83,11 @@ public class FrontRequestHandler {
     }
 
     private void prepareRequest(HttpServletRequest req, HttpServletResponse resp,
-            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl) throws Exception {
+            Map<String, Mapping> mappingUrl) throws Exception {
         String url = req.getRequestURL().toString().split("://")[1];
         String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
         this.setContext(context);
-        this.setMappingTarget(mappingUrl.get(UrlPatternKey.URL(context)));
+        this.setMappingTarget(mappingUrl.get(context));
     }
 
     private void checkMethodValidity(HttpServletRequest req) throws Exception {

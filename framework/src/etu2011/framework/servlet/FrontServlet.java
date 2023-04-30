@@ -2,12 +2,12 @@ package etu2011.framework.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import etu2011.framework.Mapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.utils.FrontRequestHandler;
-import etu2011.framework.utils.map.UrlPatternKey;
-import etu2011.framework.utils.map.UrlRegexHashMap;
+
 import fileActivity.Executor;
 
 import jakarta.servlet.ServletConfig;
@@ -19,14 +19,14 @@ import jakarta.servlet.http.HttpServletResponse;
 public class FrontServlet extends HttpServlet {
 
     private FrontRequestHandler requestHandler;
-    private UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls;
+    private Map<String, Mapping> mappingUrls;
 
     /* SETTERS SECTION */
     private void setRequestHandler(FrontRequestHandler requestHandler) {
         this.requestHandler = requestHandler;
     }
 
-    private void setMappingUrls(UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls) {
+    private void setMappingUrls(Map<String, Mapping> mappingUrls) {
         this.mappingUrls = mappingUrls;
     }
 
@@ -35,7 +35,7 @@ public class FrontServlet extends HttpServlet {
         return this.requestHandler;
     }
 
-    private UrlRegexHashMap<UrlPatternKey, Mapping> getMappingUrls() {
+    private Map<String, Mapping> getMappingUrls() {
         return this.mappingUrls;
     }
 
