@@ -6,7 +6,7 @@ This is a java framework inspired by the famous Spring MVC, for building web app
 
 Welcome to this project. Here is a guideline to help you setup the framework workspace.
 
-> I am actually using VS Code so this guide is only for VS Code users. If you use an IDE, just import the jar file to your project and then create the 'views' and 'modelControllers' folder
+> This guide is for any text editor. If you use an IDE, just import the jar file to your project and then create the 'views' and 'modelControllers' folder inside your source project
 
 First create a new java project in VS Code
 
