@@ -31,7 +31,3 @@ The 'src' will contain two main folders, where:
 - `modelControllers`: the folder for your model-controller
 
 > You can also add your custom folder inside the src directory
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
