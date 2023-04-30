@@ -1,8 +1,8 @@
-package etu2011.framework.javaObject;
+package etu2011.framework.utils.javaObject;
 
 import java.io.File;
 
-import etu2011.framework.exception.JavaFileException;
+import etu2011.framework.exceptions.JavaFileException;
 
 public class JavaFile {
 
