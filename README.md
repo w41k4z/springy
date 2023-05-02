@@ -33,3 +33,20 @@ The 'src' will contain two main folders, where:
 - `modelControllers`: the folder for your model-controller
 
 > You can also add your custom folder inside the src directory
+
+## Documentation
+
+- Annotations:
+  1- @DatePattern
+  -> This annotation is used to specify the date pattern for the date field in the model-controller
+  2- @HttpParam
+  -> This annotation is used to specify the name of the request parameter and its type (request variable || path variable) that will be used to set the value of the field in the model-controller
+  3- @ModelController
+  -> This annotation tells the framework that the class is a model-controller. It is also used for routing
+  4- @UrlMapping
+  -> This annotation is for methods mapped with an url. It is used to specify the url and the http method (GET, POST, PUT, DELETE)
+- Helpers:
+  1- @DateHelper
+  -> This helper is used to convert a string to a date
+  2- @StringHelper
+  -> This helper is an extension of the java String class (more features like converting a string to camel case, etc.)
