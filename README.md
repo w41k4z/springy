@@ -36,6 +36,8 @@ The 'src' will contain two main folders, where:
 
 ## Documentation
 
+> A ModelController must have an empty constructor
+
 - Annotations:
   - @DatePattern
     > This annotation is used to specify the date pattern for the date field in the model-controller
