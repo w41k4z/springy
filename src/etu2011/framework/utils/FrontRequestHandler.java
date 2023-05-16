@@ -140,9 +140,6 @@ public class FrontRequestHandler {
         } else {
             throw new Exception("ModelController request handler method parameters must be annotated with @HttpParam");
         }
-        if (value == null) {
-            throw new Exception("Parameter " + param.getParameterName() + " value is null");
-        }
         return this.castParameterValue(value, param);
     }
 
@@ -170,27 +167,17 @@ public class FrontRequestHandler {
                 String dateFormat = DateHelpers.getDatePattern(param.getParameter());
                 return DateHelpers.convertToSqlDate(value.toString(), dateFormat);
             case "Integer":
-                return Integer.parseInt(value.toString());
-            case "int":
-                return Integer.parseInt(value.toString());
+                return Integer.parseInt(value == null ? "0" : value.toString());
             case "Double":
-                return Double.parseDouble(value.toString());
-            case "double":
-                return Double.parseDouble(value.toString());
+                return Double.parseDouble(value == null ? "0." : value.toString());
             case "Float":
-                return Float.parseFloat(value.toString());
-            case "float":
-                return Float.parseFloat(value.toString());
+                return Float.parseFloat(value == null ? "0." : value.toString());
             case "Long":
-                return Long.parseLong(value.toString());
-            case "long":
-                return Long.parseLong(value.toString());
+                return Long.parseLong(value == null ? "0" : value.toString());
             case "Boolean":
-                return Boolean.parseBoolean(value.toString());
-            case "boolean":
-                return Boolean.parseBoolean(value.toString());
+                return Boolean.parseBoolean(value == null ? "false" : value.toString());
             default:
-                return value.toString();
+                return value == null ? null : value.toString();
         }
     }
 }
