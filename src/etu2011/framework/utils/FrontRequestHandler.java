@@ -111,7 +111,9 @@ public class FrontRequestHandler {
             } catch (NoSuchFieldException e) {
                 continue;
             }
-            JavaClass.setObjectFieldValue(target, req.getParameter(parameterName), field);
+            Object parameter = parameterName.contains("[]") ? req.getParameterValues(parameterName)
+                    : req.getParameter(parameterName);
+            JavaClass.setObjectFieldValue(target, parameter, field);
         }
     }
 
@@ -121,33 +123,44 @@ public class FrontRequestHandler {
         HttpParameter param = new HttpParameter();
         for (Parameter parameter : method.getParameters()) {
             param.setParameter(parameter);
-            values.add(this.getParameterValue(req, param, target));
+            Object[] paramValues = this.getParameterValues(req, param, target);
+            if (paramValues != null) {
+                values.add(parameter.getType().isArray() ? paramValues : paramValues[0]);
+            } else {
+                values.add(paramValues);
+            }
         }
         this.setPreparedParameterValues(values);
     }
 
-    private Object getParameterValue(HttpServletRequest req, HttpParameter param, Object target) throws Exception {
-        Object value = null;
+    private Object[] getParameterValues(HttpServletRequest req, HttpParameter param, Object target) throws Exception {
+        String[] values = null;
         if (param.getParameter().isAnnotationPresent(HttpParam.class)) {
             switch (param.getParameterType()) {
                 case REQUEST_PARAMETER:
-                    value = this.getRequestParameterValue(req, param);
+                    values = this.getRequestParameterValues(req, param);
                     break;
                 case PATH_VARIABLE:
-                    value = this.getPathVariableValue(param, target);
+                    // The castParameterValues need an array of values
+                    // Just wrapping the value in a one length array
+                    String[] pathVariable = this.getPathVariableValue(param, target) == null ? null
+                            : new String[] { this
+                                    .getPathVariableValue(param, target) };
+                    values = pathVariable;
                     break;
             }
         } else {
             throw new Exception("ModelController request handler method parameters must be annotated with @HttpParam");
         }
-        return this.castParameterValue(value, param);
+        return this.castParameterValues(values, param);
     }
 
-    private Object getRequestParameterValue(HttpServletRequest req, HttpParameter param) {
-        return req.getParameter(param.getParameterName());
+    private String[] getRequestParameterValues(HttpServletRequest req, HttpParameter param) {
+        return param.getParameter().getType().isArray() ? req.getParameterValues(param.getParameterName())
+                : new String[] { req.getParameter(param.getParameterName()) };
     }
 
-    private Object getPathVariableValue(HttpParameter param, Object target) throws Exception {
+    private String getPathVariableValue(HttpParameter param, Object target) throws Exception {
         String url = target.getClass()
                 .getAnnotation(ModelController.class).route()
                 .concat(this.getMappingTarget().getMethod().getAnnotation(UrlMapping.class).url());
@@ -161,26 +174,38 @@ public class FrontRequestHandler {
         return null;
     }
 
-    private Object castParameterValue(Object value, HttpParameter param) throws ParseException {
-        if (value != null) {
-            switch (param.getParameter().getType().getSimpleName()) {
-                case "Date":
-                    String dateFormat = DateHelpers.getDatePattern(param.getParameter());
-                    return DateHelpers.convertToSqlDate(value.toString(), dateFormat);
-                case "Integer":
-                    return Integer.parseInt(value.toString());
-                case "Double":
-                    return Double.parseDouble(value.toString());
-                case "Float":
-                    return Float.parseFloat(value.toString());
-                case "Long":
-                    return Long.parseLong(value.toString());
-                case "Boolean":
-                    return Boolean.parseBoolean(value.toString());
-                default:
-                    return value.toString();
+    private Object[] castParameterValues(String[] values, HttpParameter param) throws ParseException {
+        if (values != null) {
+            Object[] castedValue = new Object[values.length];
+            String paramType = param.getParameter().getType().getSimpleName();
+            if (paramType.equals("Date") || paramType.equals("Date[]")) {
+                String dateFormat = DateHelpers.getDatePattern(param.getParameter());
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i] = DateHelpers.convertToSqlDate(values[i], dateFormat);
+                }
+            } else if (paramType.equals("Integer") || paramType.equals("Integer[]")) {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i++] = Integer.parseInt(values[i]);
+                }
+            } else if (paramType.equals("Double") || paramType.equals("Double[]")) {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i++] = Double.parseDouble(values[i]);
+                }
+            } else if (paramType.equals("Float") || paramType.equals("Float[]")) {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i++] = Float.parseFloat(values[i]);
+                }
+            } else if (paramType.equals("Long") || paramType.equals("Long[]")) {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i++] = Long.parseLong(values[i]);
+                }
+            } else if (paramType.equals("Boolean") || paramType.equals("Boolean[]")) {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i++] = Boolean.parseBoolean(values[i]);
+                }
             }
+
         }
-        return value;
+        return values;
     }
 }

@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # compiling source code
-javac -parameters -classpath ./lib/servlet-api.jar:./lib/r-w-x_file.jar:./lib/orm.jar -d ./bin --enable-preview --release 20 $(find  src -name '*.java')
+javac -parameters -classpath ./lib/servlet-api.jar:./lib/r-w-x_file.jar:./lib/orm.jar -d ./bin --enable-preview --release 20 $(find src -name '*.java')
 
 # adding framework librairies as dependencies
     # r-w-x_file
@@ -12,4 +14,9 @@ javac -parameters -classpath ./lib/servlet-api.jar:./lib/r-w-x_file.jar:./lib/or
 
 # exporting the framework to a jar file
 cd ./bin
-jar cvf ../../springy-1.0.0.jar *
+jar cvf ../springy-1.0.0.jar *
+
+# removing framework librairies dependencies
+rm -r ./fileActivity
+
+cd ../

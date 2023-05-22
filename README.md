@@ -48,7 +48,7 @@ The 'src' will contain two main folders, where:
   - @UrlMapping
     > This annotation is for methods mapped with an url. It is used to specify the url and the http method (GET, POST, PUT, DELETE)
 - Helpers:
-  - @DateHelper
+  - DateHelper.java
     > This helper is used to convert a string to a date
-  - @StringHelper
+  - StringHelper.java
     > This helper is an extension of the java String class (more features like converting a string to camel case, etc.)
