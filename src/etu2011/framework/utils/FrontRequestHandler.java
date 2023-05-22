@@ -162,22 +162,25 @@ public class FrontRequestHandler {
     }
 
     private Object castParameterValue(Object value, HttpParameter param) throws ParseException {
-        switch (param.getParameter().getType().getSimpleName()) {
-            case "Date":
-                String dateFormat = DateHelpers.getDatePattern(param.getParameter());
-                return DateHelpers.convertToSqlDate(value.toString(), dateFormat);
-            case "Integer":
-                return Integer.parseInt(value == null ? "0" : value.toString());
-            case "Double":
-                return Double.parseDouble(value == null ? "0." : value.toString());
-            case "Float":
-                return Float.parseFloat(value == null ? "0." : value.toString());
-            case "Long":
-                return Long.parseLong(value == null ? "0" : value.toString());
-            case "Boolean":
-                return Boolean.parseBoolean(value == null ? "false" : value.toString());
-            default:
-                return value == null ? null : value.toString();
+        if (value != null) {
+            switch (param.getParameter().getType().getSimpleName()) {
+                case "Date":
+                    String dateFormat = DateHelpers.getDatePattern(param.getParameter());
+                    return DateHelpers.convertToSqlDate(value.toString(), dateFormat);
+                case "Integer":
+                    return Integer.parseInt(value.toString());
+                case "Double":
+                    return Double.parseDouble(value.toString());
+                case "Float":
+                    return Float.parseFloat(value.toString());
+                case "Long":
+                    return Long.parseLong(value.toString());
+                case "Boolean":
+                    return Boolean.parseBoolean(value.toString());
+                default:
+                    return value.toString();
+            }
         }
+        return value;
     }
 }
