@@ -79,8 +79,12 @@ public class JavaClass {
                     castedData = Double.parseDouble(data.toString().trim().replace(",", ""));
                     break;
 
+                case "String":
+                    castedData = data.toString();
+                    break;
+
                 default:
-                    castedData = data.toString().trim();
+                    castedData = data;
                     break;
             }
         }

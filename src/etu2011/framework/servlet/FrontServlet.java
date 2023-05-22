@@ -8,14 +8,17 @@ import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.utils.FrontRequestHandler;
 import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
+
 import fileActivity.Executor;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@MultipartConfig
 public class FrontServlet extends HttpServlet {
 
     private FrontRequestHandler requestHandler;

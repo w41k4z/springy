@@ -1,5 +1,6 @@
 package etu2011.framework.utils;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -19,8 +20,10 @@ import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 public class FrontRequestHandler {
 
@@ -104,6 +107,7 @@ public class FrontRequestHandler {
         Enumeration<String> allParametersName = req.getParameterNames();
         String parameterName;
         Field field;
+        // basic field
         while (allParametersName.hasMoreElements()) {
             parameterName = allParametersName.nextElement();
             try {
@@ -111,9 +115,22 @@ public class FrontRequestHandler {
             } catch (NoSuchFieldException e) {
                 continue;
             }
-            Object parameter = parameterName.contains("[]") ? req.getParameterValues(parameterName)
-                    : req.getParameter(parameterName);
+            Object parameter = field.getType().equals(UploadedFile.class)
+                    ? new UploadedFile(req.getPart(field.getName()))
+                    : parameterName.contains("[]") ? req.getParameterValues(parameterName)
+                            : req.getParameter(parameterName);
             JavaClass.setObjectFieldValue(target, parameter, field);
+        }
+        // extra field (eg: file)
+        for (Part each : req.getParts()) {
+            try {
+                field = target.getClass().getDeclaredField(each.getName());
+            } catch (NoSuchFieldException e) {
+                continue;
+            }
+            if (field.getType().equals(UploadedFile.class)) {
+                JavaClass.setObjectFieldValue(target, new UploadedFile(each), field);
+            }
         }
     }
 
@@ -134,7 +151,7 @@ public class FrontRequestHandler {
     }
 
     private Object[] getParameterValues(HttpServletRequest req, HttpParameter param, Object target) throws Exception {
-        String[] values = null;
+        Object[] values = null;
         if (param.getParameter().isAnnotationPresent(HttpParam.class)) {
             switch (param.getParameterType()) {
                 case REQUEST_PARAMETER:
@@ -155,9 +172,15 @@ public class FrontRequestHandler {
         return this.castParameterValues(values, param);
     }
 
-    private String[] getRequestParameterValues(HttpServletRequest req, HttpParameter param) {
-        return param.getParameter().getType().isArray() ? req.getParameterValues(param.getParameterName())
-                : new String[] { req.getParameter(param.getParameterName()) };
+    private Object[] getRequestParameterValues(HttpServletRequest req, HttpParameter param)
+            throws IOException, ServletException {
+        // The file object is already casted here
+        // as it is handle by the UploadedFile class
+        return param.getParameter().getType().equals(UploadedFile.class)
+                ? new Object[] { new UploadedFile(req.getPart(param.getParameterName())) }
+                : param.getParameter().getType().isArray()
+                        ? req.getParameterValues(param.getParameterName().concat("[]"))
+                        : new String[] { req.getParameter(param.getParameterName()) };
     }
 
     private String getPathVariableValue(HttpParameter param, Object target) throws Exception {
@@ -174,35 +197,37 @@ public class FrontRequestHandler {
         return null;
     }
 
-    private Object[] castParameterValues(String[] values, HttpParameter param) throws ParseException {
+    private Object[] castParameterValues(Object[] values, HttpParameter param) throws ParseException {
         if (values != null) {
             Object[] castedValue = new Object[values.length];
             String paramType = param.getParameter().getType().getSimpleName();
             if (paramType.equals("Date") || paramType.equals("Date[]")) {
                 String dateFormat = DateHelpers.getDatePattern(param.getParameter());
                 for (int i = 0; i < values.length; i++) {
-                    castedValue[i] = DateHelpers.convertToSqlDate(values[i], dateFormat);
+                    castedValue[i] = DateHelpers.convertToSqlDate(values[i].toString(), dateFormat);
                 }
             } else if (paramType.equals("Integer") || paramType.equals("Integer[]")) {
                 for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Integer.parseInt(values[i]);
+                    castedValue[i++] = Integer.parseInt(values[i].toString());
                 }
             } else if (paramType.equals("Double") || paramType.equals("Double[]")) {
                 for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Double.parseDouble(values[i]);
+                    castedValue[i++] = Double.parseDouble(values[i].toString());
                 }
             } else if (paramType.equals("Float") || paramType.equals("Float[]")) {
                 for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Float.parseFloat(values[i]);
+                    castedValue[i++] = Float.parseFloat(values[i].toString());
                 }
             } else if (paramType.equals("Long") || paramType.equals("Long[]")) {
                 for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Long.parseLong(values[i]);
+                    castedValue[i++] = Long.parseLong(values[i].toString());
                 }
             } else if (paramType.equals("Boolean") || paramType.equals("Boolean[]")) {
                 for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Boolean.parseBoolean(values[i]);
+                    castedValue[i++] = Boolean.parseBoolean(values[i].toString());
                 }
+            } else {
+                castedValue = values;
             }
 
         }
