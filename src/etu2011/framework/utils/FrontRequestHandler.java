@@ -62,6 +62,7 @@ public class FrontRequestHandler {
     public void process(HttpServletRequest req, HttpServletResponse resp,
             UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<String, Object> singletons)
             throws Exception {
+
         this.prepareRequest(req, resp, mappingUrl);
         if (this.getMappingTarget() != null) {
             this.checkMethodValidity(req);
@@ -85,6 +86,7 @@ public class FrontRequestHandler {
                 RequestDispatcher dispatcher = req.getRequestDispatcher("/" + view); // to make the path relative
                 dispatcher.forward(req, resp);
             }
+
         } else {
             resp.sendError(404);
             return;
