@@ -7,6 +7,7 @@ import java.lang.reflect.Parameter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import etu2011.framework.Mapping;
@@ -59,12 +60,15 @@ public class FrontRequestHandler {
 
     /* METHODS SECTION */
     public void process(HttpServletRequest req, HttpServletResponse resp,
-            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl)
+            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<String, Object> singletons)
             throws Exception {
         this.prepareRequest(req, resp, mappingUrl);
         if (this.getMappingTarget() != null) {
             this.checkMethodValidity(req);
-            Object target = Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance();
+
+            Object target = singletons.get(this.getMappingTarget().getClassName()) == null
+                    ? Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance()
+                    : singletons.get(this.getMappingTarget().getClassName());
 
             this.initModel(req, target);
 

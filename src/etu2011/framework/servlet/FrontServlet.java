@@ -2,6 +2,7 @@ package etu2011.framework.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import etu2011.framework.Mapping;
 import etu2011.framework.config.FrontServletConfig;
@@ -23,6 +24,7 @@ public class FrontServlet extends HttpServlet {
 
     private FrontRequestHandler requestHandler;
     private UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls;
+    private HashMap<String, Object> singletons;
 
     /* SETTERS SECTION */
     private void setRequestHandler(FrontRequestHandler requestHandler) {
@@ -31,6 +33,10 @@ public class FrontServlet extends HttpServlet {
 
     private void setMappingUrls(UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls) {
         this.mappingUrls = mappingUrls;
+    }
+
+    private void setSingletons(HashMap<String, Object> singletons) {
+        this.singletons = singletons;
     }
 
     /* GETTERS SECTION */
@@ -42,7 +48,12 @@ public class FrontServlet extends HttpServlet {
         return this.mappingUrls;
     }
 
+    private HashMap<String, Object> getSingletons() {
+        return this.singletons;
+    }
+
     /* SERVLET INIT SECTION */
+    @SuppressWarnings("unchecked")
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -52,7 +63,9 @@ public class FrontServlet extends HttpServlet {
                     .concat("WEB-INF/classes/");
             File[] files = Executor
                     .getSubFiles(new File(rootPath.concat(FrontServletConfig.MODEL_DIRECTORY)));
-            this.setMappingUrls(FrontServletConfig.getAllMappedMethod(rootPath, files));
+            Object[] configurations = FrontServletConfig.getConfigurations(rootPath, files);
+            this.setMappingUrls((UrlRegexHashMap<UrlPatternKey, Mapping>) configurations[0]);
+            this.setSingletons((HashMap<String, Object>) configurations[1]);
         } catch (Exception e) {
             throw new ServletException(e);
         }
@@ -60,7 +73,7 @@ public class FrontServlet extends HttpServlet {
 
     /* METHODS SECTION */
     private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        this.getRequestHandler().process(req, resp, this.getMappingUrls());
+        this.getRequestHandler().process(req, resp, this.getMappingUrls(), this.getSingletons());
     }
 
     @Override
