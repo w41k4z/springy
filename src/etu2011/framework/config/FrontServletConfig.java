@@ -7,8 +7,9 @@ import java.util.HashMap;
 
 import etu2011.framework.Mapping;
 import etu2011.framework.annotations.ModelController;
-import etu2011.framework.annotations.Singleton;
+import etu2011.framework.annotations.Scope;
 import etu2011.framework.annotations.UrlMapping;
+import etu2011.framework.enumerations.Scopes;
 import etu2011.framework.exceptions.JavaFileException;
 import etu2011.framework.utils.javaObject.JavaClass;
 import etu2011.framework.utils.javaObject.JavaFile;
@@ -31,7 +32,7 @@ public class FrontServletConfig {
         JavaClass javaClass = new JavaClass();
         Mapping mapping = null;
         UrlRegexHashMap<UrlPatternKey, Mapping> mappedMethod = new UrlRegexHashMap<UrlPatternKey, Mapping>();
-        HashMap<String, Object> singletons = new HashMap<>();
+        HashMap<Class<?>, Object> singletons = new HashMap<>();
         for (File file : fileTree) {
             try {
                 javaFile.setJavaFile(file);
@@ -46,9 +47,11 @@ public class FrontServletConfig {
                                 javaClass.getJavaClass().getAnnotation(ModelController.class).route()
                                         .concat(method.getAnnotation(UrlMapping.class).url()));
                         mappedMethod.put(urlPatternKey, mapping);
-                        if (javaClass.getJavaClass().isAnnotationPresent(Singleton.class)) {
-                            singletons.put(javaClass.getJavaClass().getName(),
-                                    javaClass.getJavaClass().getConstructor().newInstance());
+                        if (javaClass.getJavaClass().isAnnotationPresent(Scope.class)) {
+                            if (javaClass.getJavaClass().getAnnotation(Scope.class).value().equals(Scopes.SINGLETON)) {
+                                singletons.put(javaClass.getJavaClass(),
+                                        javaClass.getJavaClass().getConstructor().newInstance());
+                            }
                         }
                     }
                 } else {

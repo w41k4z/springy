@@ -24,7 +24,7 @@ public class FrontServlet extends HttpServlet {
 
     private FrontRequestHandler requestHandler;
     private UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls;
-    private HashMap<String, Object> singletons;
+    private HashMap<Class<?>, Object> singletons;
 
     /* SETTERS SECTION */
     private void setRequestHandler(FrontRequestHandler requestHandler) {
@@ -35,7 +35,7 @@ public class FrontServlet extends HttpServlet {
         this.mappingUrls = mappingUrls;
     }
 
-    private void setSingletons(HashMap<String, Object> singletons) {
+    private void setSingletons(HashMap<Class<?>, Object> singletons) {
         this.singletons = singletons;
     }
 
@@ -48,7 +48,7 @@ public class FrontServlet extends HttpServlet {
         return this.mappingUrls;
     }
 
-    private HashMap<String, Object> getSingletons() {
+    private HashMap<Class<?>, Object> getSingletons() {
         return this.singletons;
     }
 
@@ -65,7 +65,7 @@ public class FrontServlet extends HttpServlet {
                     .getSubFiles(new File(rootPath.concat(FrontServletConfig.MODEL_DIRECTORY)));
             Object[] configurations = FrontServletConfig.getConfigurations(rootPath, files);
             this.setMappingUrls((UrlRegexHashMap<UrlPatternKey, Mapping>) configurations[0]);
-            this.setSingletons((HashMap<String, Object>) configurations[1]);
+            this.setSingletons((HashMap<Class<?>, Object>) configurations[1]);
         } catch (Exception e) {
             throw new ServletException(e);
         }
