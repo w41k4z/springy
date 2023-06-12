@@ -67,6 +67,7 @@ public class FrontRequestHandler {
         if (this.getMappingTarget() != null) {
             this.checkMethodValidity(req);
 
+            // target value depends on wether the class is a singleton or not
             Object target = singletons.get(this.getMappingTarget().getClassName()) == null
                     ? Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance()
                     : singletons.get(this.getMappingTarget().getClassName());
@@ -121,21 +122,24 @@ public class FrontRequestHandler {
             } catch (NoSuchFieldException e) {
                 continue;
             }
-            Object parameter = field.getType().equals(UploadedFile.class)
-                    ? new UploadedFile(req.getPart(field.getName()))
-                    : parameterName.contains("[]") ? req.getParameterValues(parameterName)
-                            : req.getParameter(parameterName);
+            Object parameter = parameterName.contains("[]") ? req.getParameterValues(parameterName)
+                    : req.getParameter(parameterName);
             JavaClass.setObjectFieldValue(target, parameter, field);
         }
         // extra field (eg: file)
-        for (Part each : req.getParts()) {
-            try {
-                field = target.getClass().getDeclaredField(each.getName());
-            } catch (NoSuchFieldException e) {
-                continue;
-            }
-            if (field.getType().equals(UploadedFile.class)) {
-                JavaClass.setObjectFieldValue(target, new UploadedFile(each), field);
+        String contentType = req.getHeader("Content-Type");
+        if (contentType != null
+                && (contentType.contains("multipart/form-data") ||
+                        contentType.contains("multipart/mixed"))) {
+            for (Part each : req.getParts()) {
+                try {
+                    field = target.getClass().getDeclaredField(each.getName());
+                } catch (NoSuchFieldException e) {
+                    continue;
+                }
+                if (field.getType().equals(UploadedFile.class)) {
+                    JavaClass.setObjectFieldValue(target, new UploadedFile(each), field);
+                }
             }
         }
     }
@@ -182,11 +186,20 @@ public class FrontRequestHandler {
             throws IOException, ServletException {
         // The file object is already casted here
         // as it is handle by the UploadedFile class
-        return param.getParameter().getType().equals(UploadedFile.class)
-                ? new Object[] { new UploadedFile(req.getPart(param.getParameterName())) }
-                : param.getParameter().getType().isArray()
-                        ? req.getParameterValues(param.getParameterName().concat("[]"))
-                        : new String[] { req.getParameter(param.getParameterName()) };
+        Object[] values = null;
+        if (param.getParameter().getType().equals(UploadedFile.class)) {
+            String contentType = req.getHeader("Content-Type");
+            if (contentType != null
+                    && (contentType.contains("multipart/form-data") ||
+                            contentType.contains("multipart/mixed"))) {
+                values = new Object[] { new UploadedFile(req.getPart(param.getParameterName())) };
+            }
+        } else {
+            values = param.getParameter().getType().isArray()
+                    ? req.getParameterValues(param.getParameterName().concat("[]"))
+                    : new String[] { req.getParameter(param.getParameterName()) };
+        }
+        return values;
     }
 
     private String getPathVariableValue(HttpParameter param, Object target) throws Exception {
