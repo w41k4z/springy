@@ -60,18 +60,20 @@ public class FrontRequestHandler {
 
     /* METHODS SECTION */
     public void process(HttpServletRequest req, HttpServletResponse resp,
-            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<String, Object> singletons)
+            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<Class<?>, Object> singletons)
             throws Exception {
 
         this.prepareRequest(req, resp, mappingUrl);
         if (this.getMappingTarget() != null) {
             this.checkMethodValidity(req);
 
-            // target value depends on wether the class is a singleton or not
-            Object target = singletons.get(this.getMappingTarget().getClassName()) == null
-                    ? Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance()
-                    : singletons.get(this.getMappingTarget().getClassName());
-
+            Object target = null;
+            if (singletons.get(Class.forName(this.getMappingTarget().getClassName())) == null) {
+                target = Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance();
+            } else {
+                target = singletons.get(Class.forName(this.getMappingTarget().getClassName()));
+                this.resetModel(target);
+            }
             this.initModel(req, target);
 
             this.prepareMethodParameters(req, target);
@@ -107,6 +109,12 @@ public class FrontRequestHandler {
                 .toString();
         if (!req.getMethod().toUpperCase().equals(mappingMethodType.toUpperCase())) {
             throw new Exception("This url is not allowed for " + req.getMethod() + " method");
+        }
+    }
+
+    private void resetModel(Object target) throws Exception {
+        for (Field field : target.getClass().getDeclaredFields()) {
+            JavaClass.setObjectFieldValue(target, null, field);
         }
     }
 
