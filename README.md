@@ -6,12 +6,12 @@ This is a java framework inspired by the famous Spring MVC, for building web app
 
 Welcome to this project. Here is a guideline to help you setup the framework workspace.
 
-> This guide is for any text editor. If you use an IDE, just import the jar file to your project and then create the 'views' and 'modelControllers' folder inside your source project
+> This guide is for any text editor. If you use an IDE, just import the jar file to your project and then create the 'views' and 'controllers' folder inside your source project
 
 ## Installation
 
-    1- Download the springy-cli
-    2- Execute the `install.sh` script
+    1- Download and install the springy-cli
+    2- Type $ springy --help to see the manual
 
 ## Springy-cli
 
@@ -26,10 +26,11 @@ Welcome to this project. Here is a guideline to help you setup the framework wor
 
 ## Folder Structure
 
-Your project would have thow main folders: 'src' and 'lib'
-The 'src' will contain two main folders, where:
+Your project would have two main folders: 'src' and 'lib'
+The 'src' will contain three folders, where:
 
 - `views`: the folder to store all your jsp files
-- `modelControllers`: the folder for your model-controller
+- `controllers`: the folder for your controller
+- `static`: the folder containing all static files(images, css, javascript...)
 
 > You can also add your custom folder inside the src directory
