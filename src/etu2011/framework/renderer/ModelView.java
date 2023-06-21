@@ -7,16 +7,19 @@ public class ModelView {
 
     private String view;
     private Map<String, Object> data;
+    private Map<String, String> sessions;
 
     // constructors
     public ModelView(String view) {
         this.setView(view);
         this.setData(new HashMap<>());
+        this.setSessions(new HashMap<>());
     }
 
-    public ModelView(String view, Map<String, Object> data) {
+    public ModelView(String view, Map<String, Object> data, Map<String, String> session) {
         this.setView(view);
         this.setData(data);
+        this.setSessions(session);
     }
 
     // setters
@@ -28,6 +31,10 @@ public class ModelView {
         this.data = data;
     }
 
+    public void setSessions(Map<String, String> session) {
+        this.sessions = session;
+    }
+
     // getters
     public String getView() {
         return this.view;
@@ -35,6 +42,10 @@ public class ModelView {
 
     public Map<String, Object> getData() {
         return this.data;
+    }
+
+    public Map<String, String> getSessions() {
+        return this.sessions;
     }
 
     // methods

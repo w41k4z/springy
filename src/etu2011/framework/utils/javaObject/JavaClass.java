@@ -48,7 +48,6 @@ public class JavaClass {
     }
 
     public static void setObjectFieldValue(Object object, Object data, Field field) throws Exception {
-
         Object castedData;
         Method setter = object.getClass().getMethod(StringHelpers.toCamelCase("set", field.getName()),
                 field.getType());

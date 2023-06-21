@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import etu2011.framework.Mapping;
+import etu2011.framework.annotations.Auth;
 import etu2011.framework.annotations.HttpParam;
 import etu2011.framework.annotations.ModelController;
 import etu2011.framework.annotations.UrlMapping;
@@ -21,6 +22,7 @@ import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -60,11 +62,13 @@ public class FrontRequestHandler {
 
     /* METHODS SECTION */
     public void process(HttpServletRequest req, HttpServletResponse resp,
-            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<Class<?>, Object> singletons)
+            UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<Class<?>, Object> singletons,
+            ServletConfig servletConfig)
             throws Exception {
 
         this.prepareRequest(req, resp, mappingUrl);
         if (this.getMappingTarget() != null) {
+            // checking http method validity
             this.checkMethodValidity(req);
 
             Object target = null;
@@ -74,19 +78,33 @@ public class FrontRequestHandler {
                 target = singletons.get(Class.forName(this.getMappingTarget().getClassName()));
                 this.resetModel(target);
             }
+            // setting model fields
             this.initModel(req, target);
 
+            // getting all the parameters needed by the invoked method
             this.prepareMethodParameters(req, target);
+
+            // checking user authentication
+            this.checkMethod(req, servletConfig);
+
+            // getting method return value
             Object result = this.getMappingTarget().getMethod().invoke(target,
                     this.getPreparedParameterValues().toArray(new Object[this
                             .getPreparedParameterValues().size()]));
+
             if (result instanceof ModelView) {
                 String view = FrontServletConfig.VIEW_DIRECTORY.concat(((ModelView) result).getView());
+                // model view data
                 Map<String, Object> data = ((ModelView) result).getData();
                 for (Map.Entry<String, Object> entry : data.entrySet()) {
                     req.setAttribute(entry.getKey(), entry.getValue());
                 }
-                RequestDispatcher dispatcher = req.getRequestDispatcher("/" + view); // to make the path relative
+                // model sessions
+                Map<String, String> sessions = ((ModelView) result).getSessions();
+                for (Map.Entry<String, String> entry : sessions.entrySet()) {
+                    req.getSession().setAttribute(entry.getKey(), entry.getValue());
+                }
+                RequestDispatcher dispatcher = req.getRequestDispatcher("/" + view); // to make the path absolute
                 dispatcher.forward(req, resp);
             }
 
@@ -109,6 +127,24 @@ public class FrontRequestHandler {
                 .toString();
         if (!req.getMethod().toUpperCase().equals(mappingMethodType.toUpperCase())) {
             throw new Exception("This url is not allowed for " + req.getMethod() + " method");
+        }
+    }
+
+    private void checkMethod(HttpServletRequest req, ServletConfig servletConfig) {
+        Method method = this.getMappingTarget().getMethod();
+        if (method.isAnnotationPresent(Auth.class)) {
+            String sessionName = servletConfig.getInitParameter("sessionName");
+            if (req.getSession().getAttribute(sessionName) != null) {
+                String profileName = servletConfig.getInitParameter("sessionProfile");
+                String profile = method.getAnnotation(Auth.class).value();
+                if (profile.length() > 0) {
+                    if (!req.getSession().getAttribute(profileName).equals(profile)) {
+                        throw new RuntimeException("Length: " + profile.length());
+                    }
+                }
+            } else {
+                throw new RuntimeException("You are not allowed to access this page. Session name = " + sessionName);
+            }
         }
     }
 

@@ -19,7 +19,7 @@ import etu2011.framework.utils.map.UrlRegexHashMap;
 public class FrontServletConfig {
 
     public static final String VIEW_DIRECTORY = "views/";
-    public static final String MODEL_DIRECTORY = "modelControllers/";
+    public static final String MODEL_DIRECTORY = "controllers/";
 
     /* METHOD SECTION */
     public static Object[] getConfigurations(String rootPath, File[] fileTree)

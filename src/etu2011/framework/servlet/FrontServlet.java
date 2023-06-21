@@ -73,7 +73,8 @@ public class FrontServlet extends HttpServlet {
 
     /* METHODS SECTION */
     private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        this.getRequestHandler().process(req, resp, this.getMappingUrls(), this.getSingletons());
+        this.getRequestHandler().process(req, resp, this.getMappingUrls(), this.getSingletons(),
+                this.getServletConfig());
     }
 
     @Override
