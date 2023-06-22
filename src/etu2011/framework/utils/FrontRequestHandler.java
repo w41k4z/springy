@@ -14,6 +14,7 @@ import etu2011.framework.Mapping;
 import etu2011.framework.annotations.Auth;
 import etu2011.framework.annotations.HttpParam;
 import etu2011.framework.annotations.ModelController;
+import etu2011.framework.annotations.Sessions;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.renderer.ModelView;
@@ -184,6 +185,19 @@ public class FrontRequestHandler {
                 if (field.getType().equals(UploadedFile.class)) {
                     JavaClass.setObjectFieldValue(target, new UploadedFile(each), field);
                 }
+            }
+        }
+        // sessions
+        for (Field each : target.getClass().getDeclaredFields()) {
+            if (each.isAnnotationPresent(Sessions.class) && each.getType().equals(Map.class)) {
+                Enumeration<String> sessions = req.getSession().getAttributeNames();
+                Map<String, String> sessionsMap = new HashMap<String, String>();
+                while (sessions.hasMoreElements()) {
+                    String sessionName = sessions.nextElement();
+                    sessionsMap.put(sessionName, req.getSession().getAttribute(sessionName).toString());
+                }
+                JavaClass.setObjectFieldValue(target, sessionsMap, each);
+                break;
             }
         }
     }

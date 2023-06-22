@@ -49,7 +49,11 @@ public class ModelView {
     }
 
     // methods
-    public void add(String key, Object value) {
+    public void addData(String key, Object value) {
         this.data.put(key, value);
+    }
+
+    public void addSession(String key, Object value) {
+        this.sessions.put(key, value.toString());
     }
 }
