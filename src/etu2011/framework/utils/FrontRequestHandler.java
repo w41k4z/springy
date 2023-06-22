@@ -10,6 +10,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 import etu2011.framework.Mapping;
 import etu2011.framework.annotations.Auth;
 import etu2011.framework.annotations.HttpParam;
@@ -97,8 +99,13 @@ public class FrontRequestHandler {
                 String view = FrontServletConfig.VIEW_DIRECTORY.concat(((ModelView) result).getView());
                 // model view data
                 Map<String, Object> data = ((ModelView) result).getData();
-                for (Map.Entry<String, Object> entry : data.entrySet()) {
-                    req.setAttribute(entry.getKey(), entry.getValue());
+                if (((ModelView) result).dataIsJson()) {
+                    String jsonFormat = new Gson().toJson(data);
+                    req.setAttribute("result", jsonFormat);
+                } else {
+                    for (Map.Entry<String, Object> entry : data.entrySet()) {
+                        req.setAttribute(entry.getKey(), entry.getValue());
+                    }
                 }
                 // model sessions
                 Map<String, String> sessions = ((ModelView) result).getSessions();
@@ -140,11 +147,11 @@ public class FrontRequestHandler {
                 String profile = method.getAnnotation(Auth.class).value();
                 if (profile.length() > 0) {
                     if (!req.getSession().getAttribute(profileName).equals(profile)) {
-                        throw new RuntimeException("Length: " + profile.length());
+                        throw new RuntimeException("You are not allowed to access this page. '" + profile + "s' only");
                     }
                 }
             } else {
-                throw new RuntimeException("You are not allowed to access this page. Session name = " + sessionName);
+                throw new RuntimeException("You are not allowed to access this page");
             }
         }
     }
