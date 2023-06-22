@@ -1,6 +1,7 @@
 package etu2011.framework.utils;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -16,6 +17,7 @@ import etu2011.framework.Mapping;
 import etu2011.framework.annotations.Auth;
 import etu2011.framework.annotations.HttpParam;
 import etu2011.framework.annotations.ModelController;
+import etu2011.framework.annotations.RestAPI;
 import etu2011.framework.annotations.Sessions;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
@@ -91,11 +93,15 @@ public class FrontRequestHandler {
             this.checkMethod(req, servletConfig);
 
             // getting method return value
-            Object result = this.getMappingTarget().getMethod().invoke(target,
+            Method method = this.getMappingTarget().getMethod();
+            Object result = method.invoke(target,
                     this.getPreparedParameterValues().toArray(new Object[this
                             .getPreparedParameterValues().size()]));
-
-            if (result instanceof ModelView) {
+            if (method.isAnnotationPresent(RestAPI.class)) {
+                PrintWriter out = resp.getWriter();
+                String jsonFormat = new Gson().toJson(result);
+                out.println(jsonFormat);
+            } else if (result instanceof ModelView) {
                 String view = FrontServletConfig.VIEW_DIRECTORY.concat(((ModelView) result).getView());
                 // model view data
                 Map<String, Object> data = ((ModelView) result).getData();
@@ -114,6 +120,9 @@ public class FrontRequestHandler {
                 }
                 RequestDispatcher dispatcher = req.getRequestDispatcher("/" + view); // to make the path absolute
                 dispatcher.forward(req, resp);
+            } else {
+                resp.sendError(404);
+                return;
             }
 
         } else {
