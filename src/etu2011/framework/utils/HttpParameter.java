@@ -7,7 +7,7 @@ import etu2011.framework.enumerations.HttpParameters;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class HttpParameter {
-
+    /* FIELDS SECTION */
     private Parameter parameter;
     private HttpParameters parameterType = null;
     private String parameterName;
@@ -27,15 +27,10 @@ public class HttpParameter {
                     "This is not a valid http parameter\n.VALID: Annotated with @HttpParam or of type HttpServletRequest");
         }
         this.parameter = parameter;
-        if (parameter.isAnnotationPresent(HttpParam.class)) {
-            this.parameterType = parameter.getAnnotation(HttpParam.class).type();
-        }
-        this.parameterName = parameter.getName();
-        if (this.getParameter().isAnnotationPresent(HttpParam.class)) {
-            this.parameterName = this.getParameter().getAnnotation(HttpParam.class).name().trim().length() == 0
-                    ? this.parameterName
-                    : this.getParameter().getAnnotation(HttpParam.class).name();
-        }
+        this.parameterType = parameter.getAnnotation(HttpParam.class).type();
+        this.parameterName = this.getParameter().getAnnotation(HttpParam.class).name().trim().length() == 0
+                ? parameter.getName()
+                : this.getParameter().getAnnotation(HttpParam.class).name();
     }
 
     /* GETTER SECTION */
@@ -53,7 +48,6 @@ public class HttpParameter {
 
     /* METHODS SECTION */
     public static boolean isHttpParameter(Parameter parameter) {
-        return parameter.getType().equals(HttpServletRequest.class)
-                || parameter.isAnnotationPresent(HttpParam.class);
+        return parameter.isAnnotationPresent(HttpParam.class);
     }
 }

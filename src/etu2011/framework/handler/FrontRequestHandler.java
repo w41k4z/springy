@@ -1,4 +1,4 @@
-package etu2011.framework.utils;
+package etu2011.framework.handler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,7 +13,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-import etu2011.framework.Mapping;
 import etu2011.framework.annotations.Auth;
 import etu2011.framework.annotations.HttpParam;
 import etu2011.framework.annotations.ModelController;
@@ -22,6 +21,10 @@ import etu2011.framework.annotations.Sessions;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.config.FrontServletConfig;
 import etu2011.framework.renderer.ModelView;
+import etu2011.framework.utils.HttpParameter;
+import etu2011.framework.utils.Mapping;
+import etu2011.framework.utils.UploadedFile;
+import etu2011.framework.utils.helpers.DateHelpers;
 import etu2011.framework.utils.javaObject.JavaClass;
 import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
@@ -34,7 +37,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 public class FrontRequestHandler {
-
+    /* FIELDS SECTION */
     private Mapping mappingTarget;
     private String context;
     private ArrayList<Object> preparedParameterValues;

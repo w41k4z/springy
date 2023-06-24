@@ -1,4 +1,4 @@
-package etu2011.framework.utils;
+package etu2011.framework.utils.helpers;
 
 import java.lang.reflect.AnnotatedElement;
 import java.text.ParseException;

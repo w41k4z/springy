@@ -1,19 +1,19 @@
-package etu2011.framework;
+package etu2011.framework.utils;
 
 import java.lang.reflect.Method;
 
 public class Mapping {
-
+    /* FIELDS SECTION */
     private String className;
     private Method method;
 
-    // constructor
+    /* CONSTRUCTOR SECTION */
     public Mapping(String className, Method method) {
         this.className = className;
         this.method = method;
     }
 
-    // setter
+    /* SETTERS SECTION */
     public void setClassName(String className) {
         this.className = className;
     }
@@ -22,7 +22,7 @@ public class Mapping {
         this.method = method;
     }
 
-    // getter
+    /* GETTERS SECTION */
     public String getClassName() {
         return this.className;
     }

@@ -5,10 +5,10 @@ import java.io.File;
 import etu2011.framework.exceptions.JavaFileException;
 
 public class JavaFile {
-
+    /* FIELD SECTION */
     private File javaFile;
 
-    // constructor
+    /* CONSTRUCTORS SECTION */
     public JavaFile() {
     }
 
@@ -16,19 +16,19 @@ public class JavaFile {
         this.setJavaFile(file);
     }
 
-    // setter
+    /* SETTER SECTION */
     public void setJavaFile(File file) throws JavaFileException {
         if (!isJavaFile(file))
             throw new JavaFileException();
         this.javaFile = file;
     }
 
-    // getter
+    /* GETTER SECTION */
     public File getJavaFile() {
         return this.javaFile;
     }
 
-    // methods
+    /* METHODS SECTION */
     public boolean isJavaFile(File file) {
         return file.getName().toLowerCase().endsWith(".java") || file.getName().toLowerCase().endsWith(".class");
     }

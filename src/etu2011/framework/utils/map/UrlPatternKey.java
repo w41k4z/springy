@@ -1,7 +1,7 @@
 package etu2011.framework.utils.map;
 
 public class UrlPatternKey {
-
+    /* FIELDS SECTION */
     private String url; // ex: /path/{x}/to/{y}
     private String pattern;
 
@@ -33,6 +33,17 @@ public class UrlPatternKey {
     }
 
     /* METHODS SECTION */
+    public String createPattern(String url) {
+        return url.replaceAll("\\{.*?\\}", "(.*?)").replaceAll("/", "\\\\/");
+    }
+
+    public static UrlPatternKey URL(String url) {
+        UrlPatternKey urlOnly = new UrlPatternKey();
+        urlOnly.setUrl(url);
+        return urlOnly;
+    }
+
+    /* OVERRIDES SECTION */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof UrlPatternKey) {
@@ -49,15 +60,5 @@ public class UrlPatternKey {
     @Override
     public String toString() {
         return this.getUrl();
-    }
-
-    public String createPattern(String url) {
-        return url.replaceAll("\\{.*?\\}", "(.*?)").replaceAll("/", "\\\\/");
-    }
-
-    public static UrlPatternKey URL(String url) {
-        UrlPatternKey urlOnly = new UrlPatternKey();
-        urlOnly.setUrl(url);
-        return urlOnly;
     }
 }

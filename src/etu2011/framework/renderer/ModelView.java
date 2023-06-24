@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModelView {
-
+    /* FIELDS SECTIONS */
     private String view;
     private Map<String, Object> data;
     private boolean dataIsJson;
     private Map<String, String> sessions;
 
-    // constructors
+    /* CONSTRUCTORS SECTIONS */
     public ModelView(String view) {
         this.setView(view);
         this.setData(new HashMap<>());
@@ -25,7 +25,7 @@ public class ModelView {
         this.setSessions(session);
     }
 
-    // setters
+    /* SETTERS SECTION */
     public void setView(String view) {
         this.view = view;
     }
@@ -42,7 +42,7 @@ public class ModelView {
         this.sessions = session;
     }
 
-    // getters
+    /* GETTERS SECTION */
     public String getView() {
         return this.view;
     }
@@ -59,7 +59,7 @@ public class ModelView {
         return this.sessions;
     }
 
-    // methods
+    /* METHODS SECTION */
     public void addData(String key, Object value) {
         this.data.put(key, value);
     }

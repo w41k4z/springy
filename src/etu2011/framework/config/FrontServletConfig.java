@@ -5,19 +5,19 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import etu2011.framework.Mapping;
 import etu2011.framework.annotations.ModelController;
 import etu2011.framework.annotations.Scope;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.enumerations.Scopes;
 import etu2011.framework.exceptions.JavaFileException;
+import etu2011.framework.utils.Mapping;
 import etu2011.framework.utils.javaObject.JavaClass;
 import etu2011.framework.utils.javaObject.JavaFile;
 import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
 
 public class FrontServletConfig {
-
+    /* FIELDS SECTION */
     public static final String VIEW_DIRECTORY = "views/";
     public static final String MODEL_DIRECTORY = "controllers/";
 
@@ -54,6 +54,7 @@ public class FrontServletConfig {
                             }
                         }
                     }
+
                 } else {
                     throw new Exception("The class " + javaClass.getJavaClass().getName()
                             + " have to be annotated with @Controller");

@@ -1,4 +1,4 @@
-package etu2011.framework.utils;
+package etu2011.framework.utils.helpers;
 
 public class StringHelpers {
 

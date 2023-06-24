@@ -7,15 +7,15 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-import etu2011.framework.utils.DateHelpers;
-import etu2011.framework.utils.StringHelpers;
+import etu2011.framework.utils.helpers.DateHelpers;
+import etu2011.framework.utils.helpers.StringHelpers;
 
 /* 
  * Used for Java Class Object manipulation
 */
 
 public class JavaClass {
-
+    /* FIELD SECTION */
     private Class<?> javaClass;
 
     /* CONSTRUCTOR SECTION */
@@ -70,25 +70,11 @@ public class JavaClass {
                     castedData = Time.valueOf(data.toString().trim());
                     break;
 
-                case "Integer":
-                    castedData = Integer.parseInt(data.toString().trim().replace(",", ""));
-                    break;
-
-                case "Double":
-                    castedData = Double.parseDouble(data.toString().trim().replace(",", ""));
-                    break;
-
-                case "String":
-                    castedData = data.toString();
-                    break;
-
                 default:
-                    castedData = data;
+                    castedData = field.getType().getConstructor(String.class).newInstance(data.toString());
                     break;
             }
         }
-
         setter.invoke(object, castedData);
-
     }
 }

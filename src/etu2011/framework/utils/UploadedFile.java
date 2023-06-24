@@ -5,7 +5,7 @@ import java.io.IOException;
 import jakarta.servlet.http.Part;
 
 public class UploadedFile {
-
+    /* FIELDS SECTION */
     private String fileName;
     private String path;
     private byte[] fileBytes;
@@ -43,7 +43,7 @@ public class UploadedFile {
         return this.fileBytes;
     }
 
-    /* METHOD SECTION */
+    /* METHODS SECTION */
     public static String extractFileName(Part part) {
         String contentDisposition = part.getHeader("content-disposition");
         String[] elements = contentDisposition.split(";");

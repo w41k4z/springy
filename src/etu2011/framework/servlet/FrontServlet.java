@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import etu2011.framework.Mapping;
 import etu2011.framework.config.FrontServletConfig;
-import etu2011.framework.utils.FrontRequestHandler;
+import etu2011.framework.handler.FrontRequestHandler;
+import etu2011.framework.utils.Mapping;
 import etu2011.framework.utils.map.UrlPatternKey;
 import etu2011.framework.utils.map.UrlRegexHashMap;
 
@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
-
+    /* FIELDS SECTION */
     private FrontRequestHandler requestHandler;
     private UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrls;
     private HashMap<Class<?>, Object> singletons;
@@ -52,7 +52,13 @@ public class FrontServlet extends HttpServlet {
         return this.singletons;
     }
 
-    /* SERVLET INIT SECTION */
+    /* METHOD SECTION */
+    private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        this.getRequestHandler().process(req, resp, this.getMappingUrls(), this.getSingletons(),
+                this.getServletConfig());
+    }
+
+    /* OVERRIDES SECTION */
     @SuppressWarnings("unchecked")
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -69,12 +75,6 @@ public class FrontServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
-    }
-
-    /* METHODS SECTION */
-    private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        this.getRequestHandler().process(req, resp, this.getMappingUrls(), this.getSingletons(),
-                this.getServletConfig());
     }
 
     @Override
