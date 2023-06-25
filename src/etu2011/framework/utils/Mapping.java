@@ -2,6 +2,10 @@ package etu2011.framework.utils;
 
 import java.lang.reflect.Method;
 
+/**
+ * The {@code Mapping} class is used to represent the FrontServlet
+ * UrlRegexHashMap value.
+ */
 public class Mapping {
     /* FIELDS SECTION */
     private String className;

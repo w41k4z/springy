@@ -3,6 +3,7 @@ package etu2011.framework.handler;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.text.ParseException;
@@ -69,9 +70,18 @@ public class FrontRequestHandler {
     }
 
     /* METHODS SECTION */
+
+    /***
+     * @param req        the request object
+     * @param resp       the response object
+     * @param mappingUrl the mapping url from the front servlet
+     * @param singletons the singletons map from the front servlet
+     * @param config     the servlet config
+     * @throws Exception
+     */
     public void process(HttpServletRequest req, HttpServletResponse resp,
             UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl, HashMap<Class<?>, Object> singletons,
-            ServletConfig servletConfig)
+            ServletConfig config)
             throws Exception {
 
         this.prepareRequest(req, resp, mappingUrl);
@@ -93,7 +103,7 @@ public class FrontRequestHandler {
             this.prepareMethodParameters(req, target);
 
             // checking user authentication
-            this.checkMethod(req, servletConfig);
+            this.checkMethod(req, config);
 
             // getting method return value
             Method method = this.getMappingTarget().getMethod();
@@ -117,8 +127,8 @@ public class FrontRequestHandler {
                     }
                 }
                 // model sessions
-                Map<String, String> sessions = ((ModelView) result).getSessions();
-                for (Map.Entry<String, String> entry : sessions.entrySet()) {
+                Map<String, Object> sessions = ((ModelView) result).getSessions();
+                for (Map.Entry<String, Object> entry : sessions.entrySet()) {
                     req.getSession().setAttribute(entry.getKey(), entry.getValue());
                 }
                 RequestDispatcher dispatcher = req.getRequestDispatcher("/" + view); // to make the path absolute
@@ -150,12 +160,12 @@ public class FrontRequestHandler {
         }
     }
 
-    private void checkMethod(HttpServletRequest req, ServletConfig servletConfig) {
+    private void checkMethod(HttpServletRequest req, ServletConfig config) {
         Method method = this.getMappingTarget().getMethod();
         if (method.isAnnotationPresent(Auth.class)) {
-            String sessionName = servletConfig.getInitParameter("sessionName");
+            String sessionName = config.getInitParameter("sessionName");
             if (req.getSession().getAttribute(sessionName) != null) {
-                String profileName = servletConfig.getInitParameter("sessionProfile");
+                String profileName = config.getInitParameter("sessionProfile");
                 String profile = method.getAnnotation(Auth.class).value();
                 if (profile.length() > 0) {
                     if (!req.getSession().getAttribute(profileName).equals(profile)) {
@@ -163,7 +173,7 @@ public class FrontRequestHandler {
                     }
                 }
             } else {
-                throw new RuntimeException("You are not allowed to access this page");
+                throw new RuntimeException("You are not allowed to access this page.");
             }
         }
     }
@@ -210,13 +220,12 @@ public class FrontRequestHandler {
         for (Field each : target.getClass().getDeclaredFields()) {
             if (each.isAnnotationPresent(Sessions.class) && each.getType().equals(Map.class)) {
                 Enumeration<String> sessions = req.getSession().getAttributeNames();
-                Map<String, String> sessionsMap = new HashMap<String, String>();
+                Map<String, Object> sessionsMap = new HashMap<String, Object>();
                 while (sessions.hasMoreElements()) {
                     String sessionName = sessions.nextElement();
-                    sessionsMap.put(sessionName, req.getSession().getAttribute(sessionName).toString());
+                    sessionsMap.put(sessionName, req.getSession().getAttribute(sessionName));
                 }
                 JavaClass.setObjectFieldValue(target, sessionsMap, each);
-                break;
             }
         }
     }
@@ -224,8 +233,13 @@ public class FrontRequestHandler {
     private void prepareMethodParameters(HttpServletRequest req, Object target) throws Exception {
         ArrayList<Object> values = new ArrayList<Object>();
         Method method = this.getMappingTarget().getMethod();
+
+        // creating a HttpParameter object up here
+        // for memory efficiency
         HttpParameter param = new HttpParameter();
         for (Parameter parameter : method.getParameters()) {
+            // wrapping the Parameter inside a HttpParameter
+            // for the method getParameterValues()
             param.setParameter(parameter);
             Object[] paramValues = this.getParameterValues(req, param, target);
             if (paramValues != null) {
@@ -237,6 +251,7 @@ public class FrontRequestHandler {
         this.setPreparedParameterValues(values);
     }
 
+    // fetching the method parameter values from the request
     private Object[] getParameterValues(HttpServletRequest req, HttpParameter param, Object target) throws Exception {
         Object[] values = null;
         if (param.getParameter().isAnnotationPresent(HttpParam.class)) {
@@ -253,12 +268,11 @@ public class FrontRequestHandler {
                     values = pathVariable;
                     break;
             }
-        } else {
-            throw new Exception("ModelController request handler method parameters must be annotated with @HttpParam");
         }
         return this.castParameterValues(values, param);
     }
 
+    // foe request parameters like `?id=1`
     private Object[] getRequestParameterValues(HttpServletRequest req, HttpParameter param)
             throws IOException, ServletException {
         // The file object is already casted here
@@ -279,6 +293,7 @@ public class FrontRequestHandler {
         return values;
     }
 
+    // for path variable parameters like `/{id}`
     private String getPathVariableValue(HttpParameter param, Object target) throws Exception {
         String url = target.getClass()
                 .getAnnotation(ModelController.class).route()
@@ -293,39 +308,36 @@ public class FrontRequestHandler {
         return null;
     }
 
-    private Object[] castParameterValues(Object[] values, HttpParameter param) throws ParseException {
+    // casting the parameter values to the parameter type
+    private Object[] castParameterValues(Object[] values, HttpParameter param)
+            throws Exception {
         if (values != null) {
             Object[] castedValue = new Object[values.length];
             String paramType = param.getParameter().getType().getSimpleName();
-            if (paramType.equals("Date") || paramType.equals("Date[]")) {
-                String dateFormat = DateHelpers.getDatePattern(param.getParameter());
-                for (int i = 0; i < values.length; i++) {
-                    castedValue[i] = DateHelpers.convertToSqlDate(values[i].toString(), dateFormat);
-                }
-            } else if (paramType.equals("Integer") || paramType.equals("Integer[]")) {
-                for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Integer.parseInt(values[i].toString());
-                }
-            } else if (paramType.equals("Double") || paramType.equals("Double[]")) {
-                for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Double.parseDouble(values[i].toString());
-                }
-            } else if (paramType.equals("Float") || paramType.equals("Float[]")) {
-                for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Float.parseFloat(values[i].toString());
-                }
-            } else if (paramType.equals("Long") || paramType.equals("Long[]")) {
-                for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Long.parseLong(values[i].toString());
-                }
-            } else if (paramType.equals("Boolean") || paramType.equals("Boolean[]")) {
-                for (int i = 0; i < values.length; i++) {
-                    castedValue[i++] = Boolean.parseBoolean(values[i].toString());
-                }
-            } else {
-                castedValue = values;
+            switch (paramType) {
+                case "Date":
+                    String[] dateFormats = DateHelpers.getSupportedDatePatterns(param.getParameter());
+                    for (int i = 0; i < values.length; i++) {
+                        for (int j = 0; j < dateFormats.length; j++) {
+                            try {
+                                castedValue[i] = DateHelpers.convertToSqlDate(values[i].toString().trim(),
+                                        dateFormats[j]);
+                                break;
+                            } catch (ParseException e) {
+                                if (j == dateFormats.length - 1) {
+                                    throw new Exception("The date format is not supported");
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    for (int i = 0; i < values.length; i++) {
+                        castedValue[i++] = param.getParameter().getType().getConstructor(String.class)
+                                .newInstance(values[i]);
+                    }
+                    break;
             }
-
         }
         return values;
     }

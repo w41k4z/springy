@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import jakarta.servlet.http.Part;
 
+/**
+ * The {@code UploadedFile} class is used to represent an uploaded file.
+ */
 public class UploadedFile {
     /* FIELDS SECTION */
     private String fileName;
@@ -44,6 +47,13 @@ public class UploadedFile {
     }
 
     /* METHODS SECTION */
+
+    /**
+     * Extracts the file name from the {@code Part} object.
+     * 
+     * @param part the {@code Part} object
+     * @return the file name
+     */
     public static String extractFileName(Part part) {
         String contentDisposition = part.getHeader("content-disposition");
         String[] elements = contentDisposition.split(";");

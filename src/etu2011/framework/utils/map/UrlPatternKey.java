@@ -1,11 +1,20 @@
 package etu2011.framework.utils.map;
 
+/**
+ * The {@code UrlPatternKey} class is used to represent the URLRegexHashMap key.
+ * 
+ * @see etu2011.framework.utils.map.UrlRegexHashMap
+ */
 public class UrlPatternKey {
     /* FIELDS SECTION */
     private String url; // ex: /path/{x}/to/{y}
     private String pattern;
 
     /* CONSTRUCTOR SECTION */
+
+    /**
+     * The default constructor is private to prevent the creation of an object
+     */
     private UrlPatternKey() {
     }
 
@@ -33,10 +42,23 @@ public class UrlPatternKey {
     }
 
     /* METHODS SECTION */
+
+    /**
+     * This method creates a pattern from the given URL.
+     * 
+     * @param url The URL to create the pattern from.
+     * @return The pattern created from the given URL.
+     */
     public String createPattern(String url) {
         return url.replaceAll("\\{.*?\\}", "(.*?)").replaceAll("/", "\\\\/");
     }
 
+    /**
+     * This method creates a {@code UrlPatternKey} object from the given URL.
+     * 
+     * @param url The URL to create the {@code UrlPatternKey} object from.
+     * @return The {@code UrlPatternKey} object created from the given URL.
+     */
     public static UrlPatternKey URL(String url) {
         UrlPatternKey urlOnly = new UrlPatternKey();
         urlOnly.setUrl(url);

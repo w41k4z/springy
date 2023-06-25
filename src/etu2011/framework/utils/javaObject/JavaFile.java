@@ -4,6 +4,9 @@ import java.io.File;
 
 import etu2011.framework.exceptions.JavaFileException;
 
+/**
+ * The {@code JavaFile} class is used to represent a Java file.
+ */
 public class JavaFile {
     /* FIELD SECTION */
     private File javaFile;
@@ -29,10 +32,19 @@ public class JavaFile {
     }
 
     /* METHODS SECTION */
+
+    /**
+     * @param file the file to check.
+     * @return true if the file is a Java file, false otherwise.
+     */
     public boolean isJavaFile(File file) {
         return file.getName().toLowerCase().endsWith(".java") || file.getName().toLowerCase().endsWith(".class");
     }
 
+    /**
+     * @param pathToRemove the path to remove from the file path.
+     * @return the class object.
+     */
     public Class<?> getClassObject(String pathToRemove) {
         String path = this.getJavaFile().getPath().replace(pathToRemove, "").replace("/", ".");
         try {

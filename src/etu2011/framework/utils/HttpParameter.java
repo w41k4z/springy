@@ -4,8 +4,12 @@ import java.lang.reflect.Parameter;
 
 import etu2011.framework.annotations.HttpParam;
 import etu2011.framework.enumerations.HttpParameters;
-import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * The {@code HttpParameter} class is used to represent an http parameter.
+ * 
+ * @see etu2011.framework.annotations.HttpParam
+ */
 public class HttpParameter {
     /* FIELDS SECTION */
     private Parameter parameter;
@@ -21,6 +25,11 @@ public class HttpParameter {
     }
 
     /* SETTER SECTION */
+
+    /**
+     * @param parameter the parameter to set.
+     * @throws Exception if the parameter is not a valid http parameter.
+     */
     public void setParameter(Parameter parameter) throws Exception {
         if (!isHttpParameter(parameter)) {
             throw new Exception(
