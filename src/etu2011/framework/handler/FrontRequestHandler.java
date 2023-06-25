@@ -333,7 +333,7 @@ public class FrontRequestHandler {
                     break;
                 default:
                     for (int i = 0; i < values.length; i++) {
-                        castedValue[i++] = param.getParameter().getType().getConstructor(String.class)
+                        castedValue[i] = param.getParameter().getType().getConstructor(String.class)
                                 .newInstance(values[i]);
                     }
                     break;
