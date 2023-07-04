@@ -70,6 +70,12 @@ public class DateHelpers {
         }
     }
 
+    /**
+     * Returns the valid pattern according to the provided type
+     * 
+     * @param type The date type
+     * @return
+     */
     public static String getValidSqlDateFormat(Class<?> type) {
         type = type.isArray() ? type.getComponentType() : type;
         switch (type.getSimpleName()) {
