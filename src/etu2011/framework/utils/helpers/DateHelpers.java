@@ -4,7 +4,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
-import java.util.HashMap;
 
 import etu2011.framework.annotations.DatePattern;
 
@@ -16,11 +15,12 @@ import etu2011.framework.annotations.DatePattern;
  * @see etu2011.framework.annotations.DatePattern
  */
 public class DateHelpers {
+
     /**
      * Returns the supported time|date|datetime patterns for a given date field.
      * 
-     * @param dateField the date field to get the supported date patterns from.
-     * @return the supported date patterns for the given date field or the default
+     * @param dateField The date field to get the supported date patterns from.
+     * @return The supported date patterns for the given date field or the default
      *         date format if the element is not annotated with @DatePattern.
      */
     public static String[] getSupportedPatterns(AnnotatedElement dateField) {
@@ -38,9 +38,7 @@ public class DateHelpers {
      * @param originDatePattern the date pattern of the given date.
      * @return a java.sql.Date object.
      * @throws ParseException            if the given date is not compatible with
-     *                                   the
-     *                                   given
-     *                                   date pattern.
+     *                                   the given date pattern.
      * @throws InvocationTargetException if the valueOf method throws an exception
      */
     public static java.util.Date format(Class<?> type, String date, String pattern)
@@ -74,7 +72,7 @@ public class DateHelpers {
      * Returns the valid pattern according to the provided type
      * 
      * @param type The date type
-     * @return
+     * @return The pattern for the specified date type
      */
     public static String getValidSqlDateFormat(Class<?> type) {
         type = type.isArray() ? type.getComponentType() : type;
@@ -86,7 +84,7 @@ public class DateHelpers {
             case "Timestamp":
                 return "yyyy-mm-dd hh:mm:ss";
             default:
-                return null;
+                throw new IllegalArgumentException("The given type is not a date type");
         }
     }
 }

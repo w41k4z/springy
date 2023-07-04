@@ -311,8 +311,7 @@ public class FrontRequestHandler {
                     String[] validPattern = DateHelpers.getSupportedPatterns(param.getParameter());
                     for (int j = 0; j < validPattern.length; j++) {
                         try {
-                            castedValue[i] = DateHelpers.format(param.getParameter().getType(),
-                                    values[i].toString(), validPattern[j]);
+                            castedValue[i] = DateHelpers.format(paramClass, values[i].toString(), validPattern[j]);
                             break;
                         } catch (ParseException e) {
                             if (j == validPattern.length - 1) {

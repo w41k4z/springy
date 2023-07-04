@@ -90,6 +90,8 @@ public class JavaClass {
     public static void setObjectFieldValue(Object object, Object data, Field field)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Object castedData = null;
+        Class<?> fieldType = field.getType().isArray() ? field.getType().getComponentType()
+                : field.getType();
         Method setter = object.getClass().getMethod(StringHelpers.toCamelCase("set", field.getName()),
                 field.getType());
 
@@ -97,11 +99,11 @@ public class JavaClass {
                 || data.toString().trim().toLowerCase().equals("null")) {
             castedData = null;
         } else {
-            if (java.util.Date.class.isAssignableFrom(field.getType())) {
+            if (java.util.Date.class.isAssignableFrom(fieldType)) {
                 String[] dateFormats = DateHelpers.getSupportedPatterns(field);
                 for (int i = 0; i < dateFormats.length; i++) {
                     try {
-                        castedData = DateHelpers.format(field.getType(), data.toString().trim(),
+                        castedData = DateHelpers.format(fieldType, data.toString().trim(),
                                 dateFormats[i]);
                         break;
                     } catch (ParseException e) {
@@ -113,7 +115,7 @@ public class JavaClass {
             } else {
                 try {
                     // Basic type : INTEGER, STRING, BOOLEAN, DOUBLE, FLOAT, LONG, SHORT, BYTE
-                    castedData = field.getType().getConstructor(String.class).newInstance(data.toString());
+                    castedData = fieldType.getConstructor(String.class).newInstance(data.toString());
                 } catch (Exception e) {
                     // Object type
                     castedData = data;
