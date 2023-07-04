@@ -7,16 +7,19 @@ import java.lang.annotation.Target;
 
 /**
  * The {@code DatePattern} annotation helps supporting date patterns.
- * This framework uses {@code java.sql.Date} for date types.
+ * This framework uses
+ * {@code java.sql.Date}/{@code java.sql.Time}/{@code java.sql.Timestamp} for
+ * date types.
  * Parsing a date from a string is done using
- * {@code java.sql.Date.valueOf(String)}
- * but this method requires the date to be in the format {@code yyyy-[m]m-[d]d}
- * (This is also the {@code java.sql.Date} format).
+ * {@code java.util.Date.valueOf(String)} (all its subclass has this method)
+ * but this method requires the date to be in a specific the format
  */
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DatePattern {
     /**
+     * List of all the supported patterns for the annotated field.
+     * 
      * @return the date pattern(s) to be supported
      */
     String[] value();

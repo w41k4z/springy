@@ -28,3 +28,13 @@ jar cvf ../springy-1.0.0.jar *
 rm -r ./fileActivity
 
 cd ../
+
+# documentation
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src etu2011.framework.annotations etu2011.framework.config etu2011.framework.enumerations etu2011.framework.exceptions etu2011.framework.handler etu2011.framework.renderer etu2011.framework.servlet etu2011.framework.utils
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 
+javadoc -classpath $(find lib/ -name '*.jar' | tr '\n' ':') -d doc -sourcepath src 

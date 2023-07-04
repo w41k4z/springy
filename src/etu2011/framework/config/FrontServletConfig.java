@@ -1,7 +1,7 @@
 package etu2011.framework.config;
 
 import java.io.File;
-
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -9,6 +9,7 @@ import etu2011.framework.annotations.ModelController;
 import etu2011.framework.annotations.Scope;
 import etu2011.framework.annotations.UrlMapping;
 import etu2011.framework.enumerations.Scopes;
+import etu2011.framework.exceptions.ClassValidationException;
 import etu2011.framework.exceptions.JavaFileException;
 import etu2011.framework.utils.Mapping;
 import etu2011.framework.utils.javaObject.JavaClass;
@@ -21,7 +22,7 @@ import etu2011.framework.utils.map.UrlRegexHashMap;
  * for the main servlet.
  * It is used by the {@code FrontServlet} class.
  * 
- * @see etu2011.framework.FrontServlet
+ * @see etu2011.framework.servlet.FrontServlet
  */
 public class FrontServletConfig {
     /* FIELDS SECTION */
@@ -33,17 +34,38 @@ public class FrontServletConfig {
     /**
      * This method returns the configurations needed by the main servlet.
      * 
-     * @param rootPath the path to the controllers directory.
-     * @see etu2011.framework.utils.javaObject.JavaFile#getClassObject(String).
+     * @param rootPath The path to the classes directory. This path is
+     *                 relative to the webapp directory and is used by the
+     *                 {@code etu2011.framework.utils.javaObject.JavaFile#getClassObject()}
+     *                 method.
+     * @see etu2011.framework.utils.javaObject.JavaFile#getClassObject(String)
      * 
-     * @param fileTree the list of files in the controllers directory.
+     * @param fileTree the list of files in the classes directory.
      *
      * @return an array of objects containing the mapped methods as [0] and the
      *         singletons as [1].
-     * @throws Exception
+     * @throws SecurityException         if a security manager exists and it denies
+     *                                   the caller's access to the default empty
+     *                                   constructor based on the security manager's
+     *                                   policy
+     * @throws NoSuchMethodException     if a controller does not have a
+     *                                   public constructor with no parameters.
+     * @throws InvocationTargetException if the underlying constructor throws an
+     *                                   exception
+     * @throws IllegalArgumentException  if the number of actual and formal
+     *                                   parameters differ,
+     *                                   or if an unwrapping conversion for
+     *                                   primitive arguments fails
+     *                                   or if, after possible unwrapping a
+     *                                   parameter value cannot be converted
+     *                                   to the corresponding formal parameter type
+     *                                   by a method invocation conversion
+     * @throws InstantiationException    if a controller class represents an
+     *                                   abstract class
      */
     public static Object[] getConfigurations(String rootPath, File[] fileTree)
-            throws Exception {
+            throws InvocationTargetException, InstantiationException, IllegalArgumentException,
+            NoSuchMethodException, SecurityException {
         /*
          * Declaring variables up here
          * and injecting their dependencies in the loop using setters
@@ -79,14 +101,21 @@ public class FrontServletConfig {
                                         javaClass.getJavaClass().getConstructor().newInstance());
                             }
                         } else {
-                            throw new Exception("The class " + javaClass.getJavaClass().getName()
+                            throw new ClassValidationException("The class " + javaClass.getJavaClass().getName()
                                     + " has no scope annotation.");
                         }
                     }
 
                 }
             } catch (JavaFileException e) {
+                // Just ignoring the file if it is not a java file
                 continue;
+            } catch (IllegalAccessException e) {
+                /*
+                 * Impossible to happen because the constructor we are using is public
+                 * It is just thrown by the basic newInstance() method from the Constructor
+                 * class
+                 */
             }
         }
 

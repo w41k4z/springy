@@ -2,11 +2,14 @@ package etu2011.framework.handler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+
 import java.text.ParseException;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -43,40 +46,20 @@ public class FrontRequestHandler {
     private String context;
     private ArrayList<Object> preparedParameterValues;
 
-    /* SETTERS SECTION */
-    private void setMappingTarget(Mapping mappingTarget) {
-        this.mappingTarget = mappingTarget;
-    }
-
-    private void setContext(String context) {
-        this.context = context;
-    }
-
-    private void setPreparedParameterValues(ArrayList<Object> paramsValue) {
-        this.preparedParameterValues = paramsValue;
-    }
-
-    /* GETTERS SECTION */
-    public Mapping getMappingTarget() {
-        return this.mappingTarget;
-    }
-
-    public String getContext() {
-        return this.context;
-    }
-
-    public ArrayList<Object> getPreparedParameterValues() {
-        return this.preparedParameterValues;
-    }
-
     /* METHODS SECTION */
 
-    /***
+    /**
+     * This is the method that will be called from the front servlet to process the
+     * request. It will handle everything like request method checking,
+     * authentication
+     * , model fields initialization, method parameters preparation, method
+     * invocation, and method return value handling.
+     * 
      * @param req        the request object
      * @param resp       the response object
      * @param mappingUrl the mapping url from the front servlet
      * @param singletons the singletons map from the front servlet
-     * @param config     the servlet config
+     * @param config     the servlet configuration object
      * @throws Exception
      */
     public void process(HttpServletRequest req, HttpServletResponse resp,
@@ -85,15 +68,15 @@ public class FrontRequestHandler {
             throws Exception {
 
         this.prepareRequest(req, resp, mappingUrl);
-        if (this.getMappingTarget() != null) {
+        if (this.mappingTarget != null) {
             // checking http method validity
             this.checkMethodValidity(req);
 
             Object target = null;
-            if (singletons.get(Class.forName(this.getMappingTarget().getClassName())) == null) {
-                target = Class.forName(this.getMappingTarget().getClassName()).getConstructor().newInstance();
+            if (singletons.get(Class.forName(this.mappingTarget.getClassName())) == null) {
+                target = Class.forName(this.mappingTarget.getClassName()).getConstructor().newInstance();
             } else {
-                target = singletons.get(Class.forName(this.getMappingTarget().getClassName()));
+                target = singletons.get(Class.forName(this.mappingTarget.getClassName()));
                 this.resetModel(target);
             }
             // setting model fields
@@ -106,10 +89,9 @@ public class FrontRequestHandler {
             this.checkMethod(req, config);
 
             // getting method return value
-            Method method = this.getMappingTarget().getMethod();
+            Method method = this.mappingTarget.getMethod();
             Object result = method.invoke(target,
-                    this.getPreparedParameterValues().toArray(new Object[this
-                            .getPreparedParameterValues().size()]));
+                    this.preparedParameterValues.toArray(new Object[this.preparedParameterValues.size()]));
             if (method.isAnnotationPresent(RestAPI.class)) {
                 PrintWriter out = resp.getWriter();
                 String jsonFormat = new Gson().toJson(result);
@@ -148,12 +130,12 @@ public class FrontRequestHandler {
             UrlRegexHashMap<UrlPatternKey, Mapping> mappingUrl) throws Exception {
         String url = req.getRequestURL().toString().split("://")[1];
         String context = url.substring(url.indexOf("/")).replace(req.getContextPath(), "");
-        this.setContext(context);
-        this.setMappingTarget(mappingUrl.get(UrlPatternKey.URL(context)));
+        this.context = context;
+        this.mappingTarget = mappingUrl.get(UrlPatternKey.URL(context));
     }
 
     private void checkMethodValidity(HttpServletRequest req) throws Exception {
-        String mappingMethodType = this.getMappingTarget().getMethod().getAnnotation(UrlMapping.class).method()
+        String mappingMethodType = this.mappingTarget.getMethod().getAnnotation(UrlMapping.class).method()
                 .toString();
         if (!req.getMethod().toUpperCase().equals(mappingMethodType.toUpperCase())) {
             throw new Exception("This url is not allowed for " + req.getMethod() + " method");
@@ -161,7 +143,7 @@ public class FrontRequestHandler {
     }
 
     private void checkMethod(HttpServletRequest req, ServletConfig config) {
-        Method method = this.getMappingTarget().getMethod();
+        Method method = this.mappingTarget.getMethod();
         if (method.isAnnotationPresent(Auth.class)) {
             String sessionName = config.getInitParameter("sessionName");
             if (req.getSession().getAttribute(sessionName) != null) {
@@ -230,9 +212,11 @@ public class FrontRequestHandler {
         }
     }
 
-    private void prepareMethodParameters(HttpServletRequest req, Object target) throws Exception {
+    private void prepareMethodParameters(HttpServletRequest req, Object target)
+            throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IOException, ServletException, ParseException {
         ArrayList<Object> values = new ArrayList<Object>();
-        Method method = this.getMappingTarget().getMethod();
+        Method method = this.mappingTarget.getMethod();
 
         // creating a HttpParameter object up here
         // for memory efficiency
@@ -248,11 +232,13 @@ public class FrontRequestHandler {
                 values.add(paramValues);
             }
         }
-        this.setPreparedParameterValues(values);
+        this.preparedParameterValues = values;
     }
 
     // fetching the method parameter values from the request
-    private Object[] getParameterValues(HttpServletRequest req, HttpParameter param, Object target) throws Exception {
+    private Object[] getParameterValues(HttpServletRequest req, HttpParameter param, Object target)
+            throws IOException, ServletException, InvocationTargetException, InstantiationException,
+            IllegalAccessException, NoSuchMethodException, ParseException {
         Object[] values = null;
         if (param.getParameter().isAnnotationPresent(HttpParam.class)) {
             switch (param.getParameterType()) {
@@ -294,12 +280,12 @@ public class FrontRequestHandler {
     }
 
     // for path variable parameters like `/{id}`
-    private String getPathVariableValue(HttpParameter param, Object target) throws Exception {
+    private String getPathVariableValue(HttpParameter param, Object target) {
         String url = target.getClass()
                 .getAnnotation(ModelController.class).route()
-                .concat(this.getMappingTarget().getMethod().getAnnotation(UrlMapping.class).url());
+                .concat(this.mappingTarget.getMethod().getAnnotation(UrlMapping.class).url());
         String[] urlParts = url.split("/");
-        String[] contexParts = this.getContext().split("/");
+        String[] contexParts = this.context.split("/");
         for (int i = 0; i < contexParts.length; i++) {
             if (urlParts[i].equals("{" + param.getParameterName() + "}")) {
                 return contexParts[i];
@@ -310,34 +296,41 @@ public class FrontRequestHandler {
 
     // casting the parameter values to the parameter type
     private Object[] castParameterValues(Object[] values, HttpParameter param)
-            throws Exception {
+            throws ParseException, InvocationTargetException, InstantiationException, IllegalAccessException,
+            NoSuchMethodException {
         if (values != null) {
-            Object[] castedValue = new Object[values.length];
-            String paramType = param.getParameter().getType().getSimpleName();
-            switch (paramType) {
-                case "Date":
-                    String[] dateFormats = DateHelpers.getSupportedDatePatterns(param.getParameter());
-                    for (int i = 0; i < values.length; i++) {
-                        for (int j = 0; j < dateFormats.length; j++) {
-                            try {
-                                castedValue[i] = DateHelpers.convertToSqlDate(values[i].toString().trim(),
-                                        dateFormats[j]);
-                                break;
-                            } catch (ParseException e) {
-                                if (j == dateFormats.length - 1) {
-                                    throw new Exception("The date format is not supported");
-                                }
+            Class<?> paramClass = param.getParameter().getType().isArray()
+                    ? param.getParameter().getType().getComponentType()
+                    : param.getParameter().getType();
+
+            Object[] castedValue = (Object[]) Array.newInstance(paramClass, values.length);
+
+            // for java.sql.Time, java.sql.Timestamp and java.sql.Date type
+            if (java.util.Date.class.isAssignableFrom(paramClass)) {
+                for (int i = 0; i < values.length; i++) {
+                    String[] validPattern = DateHelpers.getSupportedPatterns(param.getParameter());
+                    for (int j = 0; j < validPattern.length; j++) {
+                        try {
+                            castedValue[i] = DateHelpers.format(param.getParameter().getType(),
+                                    values[i].toString(), validPattern[j]);
+                            break;
+                        } catch (ParseException e) {
+                            if (j == validPattern.length - 1) {
+                                throw e;
                             }
                         }
                     }
-                    break;
-                default:
-                    for (int i = 0; i < values.length; i++) {
-                        castedValue[i] = param.getParameter().getType().getConstructor(String.class)
-                                .newInstance(values[i]);
-                    }
-                    break;
+                }
+            } else if (Number.class.isAssignableFrom(paramClass)) {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i] = paramClass.getConstructor(String.class).newInstance(values[i].toString().trim());
+                }
+            } else {
+                for (int i = 0; i < values.length; i++) {
+                    castedValue[i] = values[i];
+                }
             }
+            values = castedValue;
         }
         return values;
     }

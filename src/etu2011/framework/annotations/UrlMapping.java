@@ -16,11 +16,15 @@ import etu2011.framework.enumerations.HttpMethods;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UrlMapping {
     /**
+     * The URL mapped to this method.
+     * 
      * @return the URL of the method
      */
     String url();
 
     /**
+     * The HTTP method type accepted by the annotated method.
+     * 
      * @return the HTTP method type of the method
      * 
      * @see etu2011.framework.enumerations.HttpMethods

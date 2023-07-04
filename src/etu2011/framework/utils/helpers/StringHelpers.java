@@ -7,6 +7,8 @@ package etu2011.framework.utils.helpers;
 public class StringHelpers {
 
     /**
+     * Returns the camelcase concatenation of the two given strings.
+     * 
      * @param str1 the first string.
      * @param str2 the second string.
      * @return the camelcase concatenation of the two strings.

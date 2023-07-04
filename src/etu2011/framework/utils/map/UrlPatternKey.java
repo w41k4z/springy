@@ -18,6 +18,11 @@ public class UrlPatternKey {
     private UrlPatternKey() {
     }
 
+    /**
+     * Constructor with a target URL
+     * 
+     * @param url The URL
+     */
     public UrlPatternKey(String url) {
         this.setUrl(url);
         this.setPattern(url);
@@ -33,10 +38,21 @@ public class UrlPatternKey {
     }
 
     /* GETTERS SECTION */
+
+    /**
+     * Returns the URL
+     * 
+     * @return The URL
+     */
     public String getUrl() {
         return this.url;
     }
 
+    /**
+     * Returns the URL pattern
+     * 
+     * @return The URL pattern expression
+     */
     public String getPattern() {
         return this.pattern;
     }

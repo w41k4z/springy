@@ -30,6 +30,8 @@ public class ModelView {
     }
 
     /**
+     * Controller with data.
+     * 
      * @param view    the view inside the application default views directory to
      *                render.
      * @param data    the data to be passed to the view.
@@ -44,35 +46,77 @@ public class ModelView {
     }
 
     /* SETTERS SECTION */
+
+    /**
+     * This method sets the view to be rendered.
+     * 
+     * @param view the view inside the application default views directory to
+     */
     public void setView(String view) {
         this.view = view;
     }
 
+    /**
+     * This method sets the data to be passed to the view.
+     * 
+     * @param data the data to be passed to the view.
+     */
     public void setData(Map<String, Object> data) {
         this.data = data;
     }
 
+    /**
+     * This method sets whether the data will be parsed to JSON or not.
+     * 
+     * @param isJson whether the data will be parsed to JSON or not.
+     */
     public void setDataIsJson(boolean isJson) {
         this.dataIsJson = isJson;
     }
 
+    /**
+     * This method sets the session data to be passed to the request sessions.
+     * 
+     * @param session the session data to be passed to the request sessions.
+     */
     public void setSessions(Map<String, Object> session) {
         this.sessions = session;
     }
 
     /* GETTERS SECTION */
+
+    /**
+     * This method returns the view to be rendered.
+     * 
+     * @return the view to be rendered.
+     */
     public String getView() {
         return this.view;
     }
 
+    /**
+     * This method returns the data to be passed to the view.
+     * 
+     * @return the data to be passed to the view.
+     */
     public Map<String, Object> getData() {
         return this.data;
     }
 
+    /**
+     * This method returns whether the data will be parsed to JSON or not.
+     * 
+     * @return whether the data will be parsed to JSON or not.
+     */
     public boolean dataIsJson() {
         return this.dataIsJson;
     }
 
+    /**
+     * This method returns the session data to be passed to the request sessions.
+     * 
+     * @return the session data to be passed to the request sessions.
+     */
     public Map<String, Object> getSessions() {
         return this.sessions;
     }

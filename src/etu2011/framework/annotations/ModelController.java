@@ -15,6 +15,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ModelController {
     /**
+     * The route mapped to the controller.
+     * 
      * @return the route of the controller
      */
     String route() default "";

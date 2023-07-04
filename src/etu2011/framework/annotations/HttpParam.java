@@ -15,11 +15,15 @@ import etu2011.framework.enumerations.HttpParameters;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HttpParam {
     /**
+     * The name of the parameter from the request.
+     * 
      * @return the name of the HTTP parameter
      */
     String name() default "";
 
     /**
+     * The type of the request parameter.
+     * 
      * @return the type of the HTTP parameter
      * 
      * @see etu2011.framework.enumerations.HttpParameters
