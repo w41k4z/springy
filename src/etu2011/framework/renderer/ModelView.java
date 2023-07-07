@@ -1,6 +1,8 @@
 package etu2011.framework.renderer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +14,9 @@ public class ModelView {
     private String view;
     private Map<String, Object> data;
     private boolean dataIsJson;
+    private boolean invalidateSession = false;
     private Map<String, Object> sessions;
+    private List<String> sessionsToRemove;
 
     /* CONSTRUCTORS SECTIONS */
 
@@ -27,6 +31,7 @@ public class ModelView {
         this.setData(new HashMap<>());
         this.setDataIsJson(false);
         this.setSessions(new HashMap<>());
+        this.setSessionsToRemove(new ArrayList<>());
     }
 
     /**
@@ -38,11 +43,13 @@ public class ModelView {
      * @param isJson  whether the data will be parsed to JSON or not.
      * @param session the session data to be passed to the request sessions.
      */
-    public ModelView(String view, Map<String, Object> data, boolean isJson, Map<String, Object> session) {
+    public ModelView(String view, Map<String, Object> data, boolean isJson, Map<String, Object> session,
+            List<String> sessionToRemove) {
         this.setView(view);
         this.setData(data);
         this.setDataIsJson(isJson);
         this.setSessions(session);
+        this.setSessionsToRemove(sessionToRemove);
     }
 
     /* SETTERS SECTION */
@@ -75,12 +82,30 @@ public class ModelView {
     }
 
     /**
+     * This method sets whether all the session will be invalidated or not.
+     * 
+     * @param invalidate whether the session will be invalidated or not.
+     */
+    public void invalidateSession() {
+        this.invalidateSession = true;
+    }
+
+    /**
      * This method sets the session data to be passed to the request sessions.
      * 
      * @param session the session data to be passed to the request sessions.
      */
     public void setSessions(Map<String, Object> session) {
         this.sessions = session;
+    }
+
+    /**
+     * This method sets the session data to be removed from the request sessions.
+     * 
+     * @param session the session data to be removed from the request sessions.
+     */
+    public void setSessionsToRemove(List<String> session) {
+        this.sessionsToRemove = session;
     }
 
     /* GETTERS SECTION */
@@ -113,12 +138,30 @@ public class ModelView {
     }
 
     /**
+     * This method returns whether all the session will be invalidated or not.
+     * 
+     * @return whether the session will be invalidated or not.
+     */
+    public boolean invalidatingSession() {
+        return this.invalidateSession;
+    }
+
+    /**
      * This method returns the session data to be passed to the request sessions.
      * 
      * @return the session data to be passed to the request sessions.
      */
     public Map<String, Object> getSessions() {
         return this.sessions;
+    }
+
+    /**
+     * This method returns the session data to be removed from the request sessions.
+     * 
+     * @return the session data to be removed from the request sessions.
+     */
+    public List<String> getSessionsToRemove() {
+        return this.sessionsToRemove;
     }
 
     /* METHODS SECTION */
@@ -141,5 +184,15 @@ public class ModelView {
      */
     public void addSession(String key, Object value) {
         this.sessions.put(key, value);
+    }
+
+    /**
+     * This method adds a session to the sessionToRemove map.
+     * 
+     * @param key   the key of the session.
+     * @param value the value of the session.
+     */
+    public void addSessionToRemove(String session) {
+        this.sessionsToRemove.add(session);
     }
 }

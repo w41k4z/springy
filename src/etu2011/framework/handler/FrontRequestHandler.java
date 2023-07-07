@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -98,21 +99,27 @@ public class FrontRequestHandler {
                 out.println(jsonFormat);
             } else if (result instanceof ModelView) {
                 String view = FrontServletConfig.VIEW_DIRECTORY.concat(((ModelView) result).getView());
-                // model view data
+
+                // model view data transfer
                 Map<String, Object> data = ((ModelView) result).getData();
                 if (((ModelView) result).dataIsJson()) {
                     String jsonFormat = new Gson().toJson(data);
                     req.setAttribute("result", jsonFormat);
                 } else {
-                    for (Map.Entry<String, Object> entry : data.entrySet()) {
-                        req.setAttribute(entry.getKey(), entry.getValue());
-                    }
+                    this.attributeTransfer(req, data);
                 }
-                // model sessions
+                // model sessions transfer
                 Map<String, Object> sessions = ((ModelView) result).getSessions();
-                for (Map.Entry<String, Object> entry : sessions.entrySet()) {
-                    req.getSession().setAttribute(entry.getKey(), entry.getValue());
+                this.sessionTransfer(req, sessions);
+
+                // session removal
+                if (((ModelView) result).invalidatingSession()) {
+                    req.getSession().invalidate();
+                } else {
+                    List<String> sessionToRemove = ((ModelView) result).getSessionsToRemove();
+                    this.sessionRemoval(req, sessionToRemove);
                 }
+
                 RequestDispatcher dispatcher = req.getRequestDispatcher("/" + view); // to make the path absolute
                 dispatcher.forward(req, resp);
             } else {
@@ -123,6 +130,25 @@ public class FrontRequestHandler {
         } else {
             resp.sendError(404);
             return;
+        }
+
+    }
+
+    private void attributeTransfer(HttpServletRequest req, Map<String, Object> attributes) {
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+            req.setAttribute(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void sessionTransfer(HttpServletRequest req, Map<String, Object> sessions) {
+        for (Map.Entry<String, Object> entry : sessions.entrySet()) {
+            req.setAttribute(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void sessionRemoval(HttpServletRequest req, List<String> sessions) {
+        for (String session : sessions) {
+            req.getSession().removeAttribute(session);
         }
     }
 
