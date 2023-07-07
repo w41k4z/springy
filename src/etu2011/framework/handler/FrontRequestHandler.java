@@ -113,7 +113,7 @@ public class FrontRequestHandler {
                 this.sessionTransfer(req, sessions);
 
                 // session removal
-                if (((ModelView) result).invalidatingSession()) {
+                if (((ModelView) result).invalidatingSessions()) {
                     req.getSession().invalidate();
                 } else {
                     List<String> sessionToRemove = ((ModelView) result).getSessionsToRemove();

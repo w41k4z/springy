@@ -14,7 +14,7 @@ public class ModelView {
     private String view;
     private Map<String, Object> data;
     private boolean dataIsJson;
-    private boolean invalidateSession = false;
+    private boolean invalidateSessions = false;
     private Map<String, Object> sessions;
     private List<String> sessionsToRemove;
 
@@ -82,12 +82,12 @@ public class ModelView {
     }
 
     /**
-     * This method sets whether all the session will be invalidated or not.
+     * This method sets the invalidateSessions field to `true`.
      * 
      * @param invalidate whether the session will be invalidated or not.
      */
-    public void invalidateSession() {
-        this.invalidateSession = true;
+    public void invalidateSessions() {
+        this.invalidateSessions = true;
     }
 
     /**
@@ -142,8 +142,8 @@ public class ModelView {
      * 
      * @return whether the session will be invalidated or not.
      */
-    public boolean invalidatingSession() {
-        return this.invalidateSession;
+    public boolean invalidatingSessions() {
+        return this.invalidateSessions;
     }
 
     /**
