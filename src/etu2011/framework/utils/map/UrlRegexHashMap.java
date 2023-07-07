@@ -3,9 +3,12 @@ package etu2011.framework.utils.map;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The {@code UrlRegexHashMap} class is used to provide a HashMap supporting
+ * regex.
+ * It is need to enable the {@code PATH_VARIABLE} feature.
+ */
 public class UrlRegexHashMap<SK, V> extends HashMap<UrlPatternKey, Object> {
-
-    private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unchecked")
     @Override
