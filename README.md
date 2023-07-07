@@ -10,8 +10,8 @@ Welcome to this project. Here is a guideline to help you setup the framework wor
 
 ## Installation
 
-    1- Download the springy-cli
-    2- Execute the `install.sh` script
+    1- Download and install the springy-cli
+    2- Type $ springy --help to see the manual
 
 ## Springy-cli
 
