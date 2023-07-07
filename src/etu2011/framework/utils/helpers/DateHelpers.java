@@ -27,15 +27,15 @@ public class DateHelpers {
         if (dateField.isAnnotationPresent(DatePattern.class)) {
             return dateField.getAnnotation(DatePattern.class).value();
         }
-        return new String[] { "yyyy-mm-dd", "hh:mm:ss", "yyyy-mm-dd hh:mm:ss" };
+        return new String[] { "yyyy-MM-dd", "hh:mm:ss", "yyyy-MM-dd hh:mm:ss" };
     }
 
     /**
      * Converts a given date to a Date | Time | Timestamp object.
      * 
-     * @param type              the type of the date to be converted.
-     * @param date              the date to be converted.
-     * @param originDatePattern the date pattern of the given date.
+     * @param type    the type of the date to be converted.
+     * @param date    the date to be converted.
+     * @param pattern the date pattern of the given date.
      * @return a java.sql.Date object.
      * @throws ParseException            if the given date is not compatible with
      *                                   the given date pattern.
@@ -43,16 +43,14 @@ public class DateHelpers {
      */
     public static java.util.Date format(Class<?> type, String date, String pattern)
             throws ParseException, InvocationTargetException {
+        java.text.SimpleDateFormat sourceFormat = new java.text.SimpleDateFormat(pattern);
+        java.util.Date utilDate = sourceFormat.parse(date);
+
+        String validPattern = getValidSqlDateFormat(type);
+        java.text.SimpleDateFormat targetFormat = new java.text.SimpleDateFormat(validPattern);
+        String formattedDateExpression = targetFormat.format(utilDate);
         try {
             Method valueOf = type.getMethod("valueOf", String.class);
-
-            java.text.SimpleDateFormat sourceFormat = new java.text.SimpleDateFormat(pattern);
-            java.util.Date utilDate = sourceFormat.parse(date);
-
-            String validPattern = getValidSqlDateFormat(type);
-            java.text.SimpleDateFormat targetFormat = new java.text.SimpleDateFormat(validPattern);
-            String formattedDateExpression = targetFormat.format(utilDate);
-
             return (java.util.Date) type.cast(valueOf.invoke(type, formattedDateExpression));
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("The given type is not a date type");
@@ -80,9 +78,9 @@ public class DateHelpers {
             case "Time":
                 return "hh:mm:ss";
             case "Date":
-                return "yyyy-mm-dd";
+                return "yyyy-MM-dd";
             case "Timestamp":
-                return "yyyy-mm-dd hh:mm:ss";
+                return "yyyy-MM-dd hh:mm:ss";
             default:
                 throw new IllegalArgumentException("The given type is not a date type");
         }

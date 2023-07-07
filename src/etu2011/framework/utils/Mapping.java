@@ -29,7 +29,7 @@ public class Mapping {
     /**
      * Set the class field name
      * 
-     * @param className The <package.class.name>
+     * @param className The package class name
      */
     public void setClassName(String className) {
         this.className = className;

@@ -166,7 +166,8 @@ public class FrontRequestHandler {
         }
     }
 
-    private void initModel(HttpServletRequest req, Object target) throws Exception {
+    private void initModelField(HttpServletRequest req, Object target)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Enumeration<String> allParametersName = req.getParameterNames();
         String parameterName;
         Field field;
@@ -182,7 +183,11 @@ public class FrontRequestHandler {
                     : req.getParameter(parameterName);
             JavaClass.setObjectFieldValue(target, parameter, field);
         }
-        // extra field (eg: file)
+    }
+
+    private void initModelExtraField(HttpServletRequest req, Object target) throws NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException, IOException, SecurityException, ServletException {
+        Field field;
         String contentType = req.getHeader("Content-Type");
         if (contentType != null
                 && (contentType.contains("multipart/form-data") ||
@@ -198,7 +203,10 @@ public class FrontRequestHandler {
                 }
             }
         }
-        // sessions
+    }
+
+    private void initModelSessionField(HttpServletRequest req, Object target)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         for (Field each : target.getClass().getDeclaredFields()) {
             if (each.isAnnotationPresent(Sessions.class) && each.getType().equals(Map.class)) {
                 Enumeration<String> sessions = req.getSession().getAttributeNames();
@@ -210,6 +218,15 @@ public class FrontRequestHandler {
                 JavaClass.setObjectFieldValue(target, sessionsMap, each);
             }
         }
+    }
+
+    private void initModel(HttpServletRequest req, Object target) throws Exception {
+        // basic field
+        this.initModelField(req, target);
+        // extra field (eg: file)
+        this.initModelExtraField(req, target);
+        // sessions
+        this.initModelSessionField(req, target);
     }
 
     private void prepareMethodParameters(HttpServletRequest req, Object target)

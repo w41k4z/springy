@@ -39,7 +39,6 @@ public class HttpParameter {
      * Set the parameter object field, its type and its name
      * 
      * @param parameter the parameter to set.
-     * @throws Exception if the parameter is not a valid http parameter.
      */
     public void setParameter(Parameter parameter) {
         if (!isHttpParameter(parameter)) {
