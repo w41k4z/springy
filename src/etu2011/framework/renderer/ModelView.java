@@ -83,8 +83,6 @@ public class ModelView {
 
     /**
      * This method sets the invalidateSessions field to `true`.
-     * 
-     * @param invalidate whether the session will be invalidated or not.
      */
     public void invalidateSessions() {
         this.invalidateSessions = true;
@@ -189,8 +187,7 @@ public class ModelView {
     /**
      * This method adds a session to the sessionToRemove map.
      * 
-     * @param key   the key of the session.
-     * @param value the value of the session.
+     * @param session the session name to remove.
      */
     public void addSessionToRemove(String session) {
         this.sessionsToRemove.add(session);

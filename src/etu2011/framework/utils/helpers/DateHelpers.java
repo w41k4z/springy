@@ -23,11 +23,13 @@ public class DateHelpers {
      * @return The supported date patterns for the given date field or the default
      *         date format if the element is not annotated with @DatePattern.
      */
-    public static String[] getSupportedPatterns(AnnotatedElement dateField) {
+    public static String[] getSupportedPatterns(AnnotatedElement dateField)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (dateField.isAnnotationPresent(DatePattern.class)) {
             return dateField.getAnnotation(DatePattern.class).value();
         }
-        return new String[] { "yyyy-MM-dd", "hh:mm:ss", "yyyy-MM-dd hh:mm:ss" };
+        return new String[] {
+                getValidSqlDateFormat((Class<?>) dateField.getClass().getMethod("getType").invoke(dateField)) };
     }
 
     /**
@@ -76,13 +78,13 @@ public class DateHelpers {
         type = type.isArray() ? type.getComponentType() : type;
         switch (type.getSimpleName()) {
             case "Time":
-                return "hh:mm:ss";
+                return "HH:mm:ss";
             case "Date":
                 return "yyyy-MM-dd";
             case "Timestamp":
-                return "yyyy-MM-dd hh:mm:ss";
+                return "yyyy-MM-dd HH:mm:ss";
             default:
-                throw new IllegalArgumentException("The given type is not a date type");
+                throw new IllegalArgumentException("The `" + type.getSimpleName() + "` type is not a date type");
         }
     }
 }
