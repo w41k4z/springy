@@ -128,8 +128,9 @@ public class FrontRequestHandler {
             }
 
         } else {
-            resp.sendError(404);
-            return;
+            throw new Exception("URL NOT SUPPORTED");
+            // resp.sendError(404);
+            // return;
         }
 
     }
@@ -202,6 +203,9 @@ public class FrontRequestHandler {
             parameterName = allParametersName.nextElement();
             try {
                 field = target.getClass().getDeclaredField(parameterName);
+                if (field.getType().equals(UploadedFile.class)) {
+                    throw new NoSuchFieldException();
+                }
             } catch (NoSuchFieldException e) {
                 continue;
             }
